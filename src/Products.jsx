@@ -1,16 +1,21 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
+import { Link } from "react-router-dom";
+import axios from "axios";
+import qs from "qs"
 import Header from "./components/Header";
 
 const DisplayProducts = () => {
 
     const { category } = useParams();
     const { brand } = useParams();
-    const [productCategory, setProductCategory] = useState("");
-    const [mobileBrand, setMobileBrand] = useState("");
-    const[data, setData] = useState(null);
+    const[products, setProducts] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [filterValues, setFilterValues] = useState([]);
+    const [enableFilterCriteria, setEnableFilterCriteria] = useState("");
+    const [laptopFilterValues, setLaptopFilterValues] = useState([]);
+    const [laptopFilterEnableCriteria, setLaptopEnableFilterCriteria] = useState(null);
     const [filter, setFilter] = useState({
         brand: [],
         ram: [], 
@@ -32,24 +37,68 @@ const DisplayProducts = () => {
         clockSpeed: [],
         price: []  
     });
+    const [laptopFilters, setLaptopFilters] = useState({
+    brand: [],
+    laptopType: [],
+    processorType: [],
+    processorGeneration: [],
+    processorBrand: [],
+    ramCapacity: [],
+    ramType: [],
+    storageCapacity: [],
+    storageType: [],
+    screenSize: [],
+    operatingSystem: [],
+    weight: [],
+    isTouchScreen: [],
+    usage: [],
+    graphicsMemoryCapacity: [],
+    graphicsMemoryType: [],
+    graphicsProcessorName: [],
+    features: [],
+    price: []
+    });
 
 
     const filterHandler = (event) => {
         if (event.target.checked) {
             setFilter((prevFilter) => ({
                 ...prevFilter, [event.target.name]: [...prevFilter[event.target.name], event.target.value]
-            }))
+            }));
+            setProducts(null);
+            setFilterValues((prevArray) => [...prevArray, event.target.value]);
+            setEnableFilterCriteria(Date.now());
         } else {
             setFilter((prevFilter) => ({
                 ...prevFilter, [event.target.name]: prevFilter[event.target.name].filter((ele) => ele !== event.target.value)
-            }))
+            }));
+            setProducts(null);
+            setFilterValues((prevArray) => prevArray.filter((value) => value !== event.target.value));
+            setEnableFilterCriteria(Date.now());
+        }
+    }
+
+    const laptopsFilterHandler = (event) => {
+        if (event.target.checked) {
+            setLaptopFilters((prevFilter) => ({
+                ...prevFilter, [event.target.name]: [...prevFilter[event.target.name], event.target.value]
+            }));
+            setLaptopFilterValues((prevArray) => [...prevArray, event.target.value]);
+            setLaptopEnableFilterCriteria(Date.now());
+        } else {
+            setLaptopFilters((prevFilter) => ({
+                ...prevFilter, [event.target.name]: prevFilter[event.target.name].filter((ele) => ele !== event.target.value)
+            }));
+            setLaptopFilterValues((prevArray) => prevArray.filter((value) => value !== event.target.value));
+            setLaptopEnableFilterCriteria(Date.now());
         }
     }
 
     useEffect(() => {
-        if (category === "mobiles") {
+        if (category === "mobiles" && filterValues.length === 0) {
             if (brand === "all") {
                 setLoading(true);
+                setError(null);
                 fetch("https://tech-mart-backend-five.vercel.app/mobiles")
                 .then((response) => {
                     if (! response.ok) {
@@ -57,7 +106,7 @@ const DisplayProducts = () => {
                     }
                     return response.json();
                 }).then((responseData) => {
-                    setData(responseData)
+                    setProducts(responseData)
                 })
                 .catch(() => {
                     setError(error.message);
@@ -65,18 +114,18 @@ const DisplayProducts = () => {
                 .finally(() => {
                     setLoading(false)
                 })
-                console.log(data)
             } else {
                 setLoading(true);
+                setError(null);
                 fetch(`https://tech-mart-backend-five.vercel.app/mobiles/brand/${brand}`)
                 .then((response) => {
                     if (! response.ok) {
-                        throw error
+                        throw new Error("Failed to fetch data");
                     }
                     return response.json()
                 })
                 .then((responseData) => {
-                    setData(responseData);
+                    setProducts(responseData);
                 })
                 .catch((error) => {
                     setError(error.message)
@@ -84,10 +133,71 @@ const DisplayProducts = () => {
                 .finally(() => {
                     setLoading(false)
                 })
-                console.log(data)
+            }
+        } else if (category === "laptops" && filterValues.length === 0) {
+            if (brand === "all") {
+                setLoading(true);
+                setError(null);
+                fetch("https://tech-mart-backend-five.vercel.app/laptops")
+                .then((response) => {
+                    if (! response.ok) {
+                        throw new Error("Failed to fetch data");
+                    }
+                    return response.json();
+                })
+                .then((responseData) => {
+                    setProducts(responseData);
+                })
+                .catch((error) => {
+                    setError(error.message);
+                })
+                .finally(() => {
+                    setLoading(false)
+                })
+            } else {
+                setLoading(true);
+                setError(null);
+                fetch(`https://tech-mart-backend-five.vercel.app/laptops/brand/${brand}`)
+                .then((response) => {
+                    if (! response.ok) {
+                        throw new Error("Failed to fetch data");
+                    }
+                    return response.json();
+                })
+                .then((responseData) => {
+                    setProducts(responseData);
+                })
+                .catch((error) => {
+                    setError(error.message);
+                })
+                .finally(() => {
+                    setLoading(false);
+                })
             }
         }
-    }, )
+    }, [category, brand, enableFilterCriteria])
+    
+    useEffect(() => {
+        if (category === "mobiles" && filterValues.length > 0) {
+            setLoading(true);
+            setError(null)
+            axios.get("https://tech-mart-backend-five.vercel.app/mobiles/filter", {
+                params: filter,
+                paramsSerializer: (params => qs.stringify(params, { arrayFormat: "repeat" }))
+            })
+            .then((res) => {
+                setProducts(res.data);
+                console.log(res.data);
+            })
+            .catch((error) => {
+                setError(error.message)
+            })
+            .finally(() => {
+                setLoading(false);
+            })
+        }
+    }, [enableFilterCriteria, filter])
+
 
     return (
         <div>
@@ -105,101 +215,101 @@ const DisplayProducts = () => {
                                     type="checkbox"
                                     className="form-check-input"
                                     name="price"
-                                    id="0-10000"
-                                    value="0-10000"
+                                    id="0-9999"
+                                    value="0-9999"
                                     onChange={filterHandler}
                                     />
-                                    <label htmlFor="0-10000" className="form-check-label fs-5 fw-normal"><i className="bi bi-currency-rupee"></i>0-<i className="bi bi-currency-rupee"></i>10000</label>
+                                    <label htmlFor="0-9999" className="form-check-label fs-5 fw-normal"><i className="bi bi-currency-rupee"></i>0-<i className="bi bi-currency-rupee"></i>9999</label>
                                     <br/>
                                     <input
                                     type="checkbox"
                                     className="form-check-input"
                                     name="price"
-                                    id="0-20000"
-                                    value="0-20000"
+                                    id="10000-19999"
+                                    value="10000-19999"
                                     onChange={filterHandler}
                                     />
-                                    <label htmlFor="0-20000" className="form-check-label fs-5 fw-normal"><i className="bi bi-currency-rupee"></i>0-<i className="bi bi-currency-rupee"></i>20000</label>
+                                    <label htmlFor="10000-19999" className="form-check-label fs-5 fw-normal"><i className="bi bi-currency-rupee"></i>10000-<i className="bi bi-currency-rupee"></i>19999</label>
                                     <br/>
                                     <input
                                     type="checkbox"
                                     className="form-check-input"
                                     name="price"
-                                    id="0-30000"
-                                    value="0-30000"
+                                    id="20000-29999"
+                                    value="20000-29999"
                                     onChange={filterHandler}
                                     />
-                                    <label htmlFor="0-30000" className="form-check-label fs-5 fw-normal"><i className="bi bi-currency-rupee"></i>0-<i className="bi bi-currency-rupee"></i>30000</label>
+                                    <label htmlFor="20000-29999" className="form-check-label fs-5 fw-normal"><i className="bi bi-currency-rupee"></i>20000-<i className="bi bi-currency-rupee"></i>29999</label>
                                     <br/>
                                     <input
                                     type="checkbox"
                                     className="form-check-input"
                                     name="price"
-                                    id="0-40000"
-                                    value="0-40000"
+                                    id="30000-39999"
+                                    value="30000-39999"
                                     onChange={filterHandler}
                                     />
-                                    <label htmlFor="0-40000" className="form-check-label fs-5 fw-normal"><i className="bi bi-currency-rupee"></i>0-<i className="bi bi-currency-rupee"></i>40000</label>
+                                    <label htmlFor="30000-39999" className="form-check-label fs-5 fw-normal"><i className="bi bi-currency-rupee"></i>30000-<i className="bi bi-currency-rupee"></i>39999</label>
                                     <br/>
                                     <input
                                     type="checkbox"
                                     className="form-check-input"
                                     name="price"
-                                    id="0-50000"
-                                    value="0-50000"
+                                    id="40000-49999"
+                                    value="40000-49999"
                                     onChange={filterHandler}
                                     />
-                                    <label htmlFor="0-50000" className="form-check-label fs-5 fw-normal"><i className="bi bi-currency-rupee"></i>0-<i className="bi bi-currency-rupee"></i>50000</label>
+                                    <label htmlFor="40000-49999" className="form-check-label fs-5 fw-normal"><i className="bi bi-currency-rupee"></i>40000-<i className="bi bi-currency-rupee"></i>49999</label>
                                     <br/>
                                     <input
                                     type="checkbox"
                                     className="form-check-input"
                                     name="price"
-                                    id="0-60000"
-                                    value="0-60000"
+                                    id="50000-59990"
+                                    value="50000-59990"
                                     onChange={filterHandler}
                                     />
-                                    <label htmlFor="0-60000" className="form-check-label fs-5 fw-normal"><i className="bi bi-currency-rupee"></i>0-<i className="bi bi-currency-rupee"></i>60000</label>
+                                    <label htmlFor="50000-59990" className="form-check-label fs-5 fw-normal"><i className="bi bi-currency-rupee"></i>50000-<i className="bi bi-currency-rupee"></i>59999</label>
                                     <br/>
                                     <input
                                     type="checkbox"
                                     className="form-check-input"
                                     name="price"
-                                    id="0-70000"
-                                    value="0-70000"
+                                    id="60000-69999"
+                                    value="60000-69999"
                                     onChange={filterHandler}
                                     />
-                                    <label htmlFor="0-70000" className="form-check-label fs-5 fw-normal"><i className="bi bi-currency-rupee"></i>0-<i className="bi bi-currency-rupee"></i>70000</label>
+                                    <label htmlFor="60000-69999" className="form-check-label fs-5 fw-normal"><i className="bi bi-currency-rupee"></i>60000-<i className="bi bi-currency-rupee"></i>69999</label>
                                     <br/>
                                     <input
                                     type="checkbox"
                                     className="form-check-input"
                                     name="price"
-                                    id="0-80000"
-                                    value="0-80000"
+                                    id="70000-79999"
+                                    value="70000-79999"
                                     onChange={filterHandler}
                                     />
-                                    <label htmlFor="0-80000" className="form-check-label fs-5 fw-normal"><i className="bi bi-currency-rupee"></i>0-<i className="bi bi-currency-rupee"></i>80000</label>
+                                    <label htmlFor="70000-79999" className="form-check-label fs-5 fw-normal"><i className="bi bi-currency-rupee"></i>70000-<i className="bi bi-currency-rupee"></i>79999</label>
                                     <br/>
                                     <input
                                     type="checkbox"
                                     className="form-check-input"
                                     name="price"
-                                    id="0-90000"
-                                    value="0-90000"
+                                    id="80000-89999"
+                                    value="80000-89999"
                                     onChange={filterHandler}
                                     />
-                                    <label htmlFor="0-90000" className="form-check-label fs-5 fw-normal"><i className="bi bi-currency-rupee"></i>0-<i className="bi bi-currency-rupee"></i>90000</label>
+                                    <label htmlFor="80000-89999" className="form-check-label fs-5 fw-normal"><i className="bi bi-currency-rupee"></i>80000-<i className="bi bi-currency-rupee"></i>89999</label>
                                     <br/>
                                     <input
                                     type="checkbox"
                                     className="form-check-input"
                                     name="price"
-                                    id="0-100000"
-                                    value="0-100000"
+                                    id="90000-100000"
+                                    value="90000-100000"
                                     onChange={filterHandler}
                                     />
-                                    <label htmlFor="0-100000" className="form-check-label fs-5 fw-normal"><i className="bi bi-currency-rupee"></i>0-<i className="bi bi-currency-rupee"></i>100000</label>
+                                    <label htmlFor="90000-100000" className="form-check-label fs-5 fw-normal"><i className="bi bi-currency-rupee"></i>90000-<i className="bi bi-currency-rupee"></i>100000</label>
                                 </div>
                                 <hr/>
                                 <label className="fs-4 fw-normal form-label">Brand:</label>
@@ -1167,11 +1277,533 @@ const DisplayProducts = () => {
                                 </div>
                             </div>
                         </div>}
+                        {category === "laptops" && <div className="card">
+                              <div className="card-body overflow-y-scroll" style={{ maxHeight: "600px"}}>
+                                <p className="fs-2 fw-medium">Filters</p>
+                                <hr/>
+                                <label className="fs-3 fw-normal">Price</label>
+                                <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="30000-39999"
+                                    name="price"
+                                    value="30000-39999"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="30000-39999" className="form-check-label fs-5 fw-normal"><i className="bi bi-currency-rupee"></i>30000-<i className="bi bi-currency-rupee"></i>39999</label>
+                                </div>
+                                 <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="40000-49999"
+                                    name="price"
+                                    value="40000-49999"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="40000-49999" className="form-check-label fs-5 fw-normal"><i className="bi bi-currency-rupee"></i>40000-<i className="bi bi-currency-rupee"></i>49999</label>
+                                </div>
+                                 <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="50000-59999"
+                                    name="price"
+                                    value="50000-59999"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="50000-59999" className="form-check-label fs-5 fw-normal"><i className="bi bi-currency-rupee"></i>50000-<i className="bi bi-currency-rupee"></i>59999</label>
+                                </div>
+                                 <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="60000-69999"
+                                    name="price"
+                                    value="60000-69999"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="60000-69999" className="form-check-label fs-5 fw-normal"><i className="bi bi-currency-rupee"></i>60000-<i className="bi bi-currency-rupee"></i>69999</label>
+                                </div>
+                                 <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="70000-79999"
+                                    name="price"
+                                    value="70000-79999"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="70000-79999" className="form-check-label fs-5 fw-normal"><i className="bi bi-currency-rupee"></i>70000-<i className="bi bi-currency-rupee"></i>79999</label>
+                                </div>
+                                 <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="80000-89999"
+                                    name="price"
+                                    value="80000-89999"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="80000-89999" className="form-check-label fs-5 fw-normal"><i className="bi bi-currency-rupee"></i>80000-<i className="bi bi-currency-rupee"></i>89999</label>
+                                </div>
+                                 <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="90000-99999"
+                                    name="price"
+                                    value="90000-99999"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="90000-99999" className="form-check-label fs-5 fw-normal"><i className="bi bi-currency-rupee"></i>90000-<i className="bi bi-currency-rupee"></i>99999</label>
+                                </div>
+                                 <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="100000-149999"
+                                    name="price"
+                                    value="100000-149999"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="100000-149999" className="form-check-label fs-5 fw-normal"><i className="bi bi-currency-rupee"></i>100000-<i className="bi bi-currency-rupee"></i>149999</label>
+                                </div>
+                                 <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="150000-199999"
+                                    name="price"
+                                    value="150000-199999"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="150000-199999" className="form-check-label fs-5 fw-normal"><i className="bi bi-currency-rupee"></i>150000-<i className="bi bi-currency-rupee"></i>199999</label>
+                                </div>
+                                 <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="200000-500000"
+                                    name="price"
+                                    value="200000-500000"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="200000-500000" className="form-check-label fs-5 fw-normal"><i className="bi bi-currency-rupee"></i>200000 and above</label>
+                                </div>
+                                <hr/>
+                                <label className="fs-3 fw-normal">Brand</label>
+                                <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="hp"
+                                    name="brand"
+                                    value="HP"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="hp" className="fs-5 fw-normal form-check-label">HP</label>
+                                </div>
+                                <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="dell"
+                                    name="brand"
+                                    value="Dell"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="dell" className="fs-5 fw-normal form-check-label">Dell</label>
+                                </div>
+                                <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="lenovo"
+                                    name="brand"
+                                    value="Lenovo"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="lenovo" className="fs-5 fw-normal form-check-label">Lenovo</label>
+                                </div>
+                                <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="accer"
+                                    name="brand"
+                                    value="Accer"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="accer" className="fs-5 fw-normal form-check-label">Accer</label>
+                                </div>
+                                <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="asus"
+                                    name="brand"
+                                    value="Asus"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="asus" className="fs-5 fw-normal form-check-label">Asus</label>
+                                </div>
+                                <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="msi"
+                                    name="brand"
+                                    value="MSI"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="msi" className="fs-5 fw-normal form-check-label">MSI</label>
+                                </div>
+                                <hr/>
+                                <label className="fs-5 fw-normal">Laptop Type</label>
+                                <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="gaming laptop"
+                                    name="laptopType"
+                                    value="Gaming Laptop"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="gaming laptop" className="form-check-label fs-5 fw-normal">Gaming Laptop</label>
+                                </div>
+                                <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="business laptop"
+                                    name="laptopType"
+                                    value="Business Laptop"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="business laptop" className="form-check-label fs-5 fw-normal">Business Laptop</label>
+                                </div>
+                                <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="thin and light laptop"
+                                    name="laptopType"
+                                    value="Thin and Light Laptop"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="thin and light laptop" className="form-check-label fs-5 fw-normal">Thin and Light Laptop</label>
+                                </div>
+                                <hr/>
+                                <label className="fs-5 fw-normal form-label">Processor Type</label>
+                                <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="core i3"
+                                    name="processorType"
+                                    value="Core i3"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="core i3" className="fs-5 fw-normal form-check-label">Core i3</label>
+                                </div>
+                                 <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="core i5"
+                                    name="processorType"
+                                    value="Core i5"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="core i5" className="fs-5 fw-normal form-check-label">Core i5</label>
+                                </div>
+                                 <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="core i7"
+                                    name="processorType"
+                                    value="Core i7"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="core i7" className="fs-5 fw-normal form-check-label">Core i7</label>
+                                </div>
+                                 <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="core i9"
+                                    name="processorType"
+                                    value="Core i9"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="core i9" className="fs-5 fw-normal form-check-label">Core i9</label>
+                                </div>
+                                 <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="ryzen 5"
+                                    name="processorType"
+                                    value="Ryzen 5"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="ryzen 5" className="fs-5 fw-normal form-check-label">Ryzen 5</label>
+                                </div>
+                                 <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="ryzen 7"
+                                    name="processorType"
+                                    value="Ryzen 7"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="ryzen 7" className="fs-5 fw-normal form-check-label">Ryzen 7</label>
+                                </div>
+                                 <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="ryzen 9"
+                                    name="processorType"
+                                    value="Ryzen 9"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="Ryzen 9" className="fs-5 fw-normal form-check-label">Ryzen 9</label>
+                                </div>
+                                <hr/>
+                                <label className="form-label fs-5 fw-normal">Processor Generation</label>
+                                <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="1st gen"
+                                    name="processorGeneration"
+                                    value="1st Gen"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="1st gen" className="fs-5 fw-normal form-check-label">1st Gen</label>
+                                </div>
+                                 <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="2nd gen"
+                                    name="processorGeneration"
+                                    value="2nd Gen"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="2nd gen" className="fs-5 fw-normal form-check-label">2nd Gen</label>
+                                </div>
+                                 <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="3rd gen"
+                                    name="processorGeneration"
+                                    value="3rd Gen"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="3rd gen" className="fs-5 fw-normal form-check-label">3rd Gen</label>
+                                </div>
+                                 <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="4th gen"
+                                    name="processorGeneration"
+                                    value="4th Gen"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="4th gen" className="fs-5 fw-normal form-check-label">4th Gen</label>
+                                </div>
+                                 <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="5th gen"
+                                    name="processorGeneration"
+                                    value="5th Gen"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="5th gen" className="fs-5 fw-normal form-check-label">5th Gen</label>
+                                </div>
+                                 <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="6th gen"
+                                    name="processorGeneration"
+                                    value="6th Gen"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="6th gen" className="fs-5 fw-normal form-check-label">6th Gen</label>
+                                </div>
+                                 <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="7th gen"
+                                    name="processorGeneration"
+                                    value="7th Gen"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="7th gen" className="fs-5 fw-normal form-check-label">7th Gen</label>
+                                </div>
+                                 <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="8th gen"
+                                    name="processorGeneration"
+                                    value="8th Gen"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="8th gen" className="fs-5 fw-normal form-check-label">8th Gen</label>
+                                </div>
+                                 <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="9th gen"
+                                    name="processorGeneration"
+                                    value="9th Gen"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="9th gen" className="fs-5 fw-normal form-check-label">9th Gen</label>
+                                </div>
+                                 <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="10th gen"
+                                    name="processorGeneration"
+                                    value="10th Gen"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="10th gen" className="fs-5 fw-normal form-check-label">10th Gen</label>
+                                </div>
+                                 <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="11th gen"
+                                    name="processorGeneration"
+                                    value="11th Gen"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="11th gen" className="fs-5 fw-normal form-check-label">11th Gen</label>
+                                </div>
+                                 <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="12th gen"
+                                    name="processorGeneration"
+                                    value="12th Gen"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="12th gen" className="fs-5 fw-normal form-check-label">12th Gen</label>
+                                </div>
+                                 <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="13th gen"
+                                    name="processorGeneration"
+                                    value="13th Gen"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="13th gen" className="fs-5 fw-normal form-check-label">13th Gen</label>
+                                </div>
+                                <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="14th gen"
+                                    name="processorGeneration"
+                                    value="14th Gen"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="14th gen" className="fs-5 fw-normal form-check-label">14th Gen</label>
+                                </div>
+                                <hr/>
+                                <label className="fs-3 fw-normal form-label">Processor Brand</label>
+                                <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="intel"
+                                    name="processorBrand"
+                                    value="Intel"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="intel" className="form-check-label fs-5 fw-normal">Intel</label>
+                                </div>
+                                <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="amd"
+                                    name="processorBrand"
+                                    value="AMD"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="amd" className="form-check-label fs-5 fw-normal">AMD</label>
+                                </div>
+                                <hr/>
+                              </div>
+                            </div>}
                     </div>
                     <div className="col position-relative">
                        {loading && <div className="position-absolute top-50 start-50 translate-middle">
                           <div className="spinner-border text-primary" role="status"></div>
                         </div>}
+                        {error && <p className="fs-5 fw-normal">{error}</p>}
+                        {products && <div>
+                              {Object.keys(products).includes("mobiles") && <div>
+                                  <ul className="list-group py-4">
+                                    {products.mobiles.map((ele) => {
+                                        return (
+                                            <li className="list-group-item" key={ele._id}>
+                                                <Link className="link-offset-2 link-underline link-underline-opacity-0">
+                                                   <div className="row">
+                                                    <div className="col-md-2">
+                                                        <img src={ele.thumbnailImage} className="img-fluid mt-4" style={{ height: "200px", width: "200px"}}/>
+                                                    </div>
+                                                    <div className="col-md-6 py-4 ms-5">
+                                                        <div>
+                                                            <p className="fs-3 fw-medium text-black mt-2">{ele.generalFeatures.name}</p>
+                                                            <p className="fs-5 fw-medium mt-2" style={{ color: "grey"}}>{ele.ratings} Ratings & {ele.reviews} Reviews</p>
+                                                            <span className="badge text-bg-success">{ele.averageRating}<i className="bi bi-star-fill"></i></span>
+                                                            <ul style={{ color: "grey"}} className="fw-normal py-2">
+                                                               <li>{ele.generalFeatures.ram} RAM | {ele.generalFeatures.internalStorage.map((element) => element + "GB").join(", ")}</li>
+                                                               <li>{ele.displayFeatures.attributes["Display Size"]} {ele.displayFeatures.attributes["Resolution Type"]}</li>
+                                                               <li>{ele.cameraFeatures.attributes["Primary Camera"]} | {ele.cameraFeatures.attributes["Secondary Camera"]} Front Camera</li>
+                                                               <li>{ele.generalFeatures.batteryCapacity}mAh Battery</li>
+                                                               <li>{ele.osAndProcessorFeatures.attributes["Processor Brand"]} {ele.osAndProcessorFeatures.attributes["Primary Clock Speed"]} processor</li>
+                                                               <li>{ele.warranty.warrantySummary}</li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                    <div className="col text-black">
+                                                        <p className="fs-3 fw-normal mt-4"><i className="bi bi-currency-rupee"></i>{ele.discountedPrice}</p>
+                                                        <div className="d-flex">
+                                                            <p style={{ color: "grey"}} className="fs-5 me-3"><del><i className="bi bi-currency-rupee"></i>{ele.orignalPrice}</del></p>
+                                                            <p className="text-success fw-medium fs-5">{ele.discount}% off</p>
+                                                        </div>
+                                                    </div>
+                                                   </div>
+                                                </Link>
+                                            </li>
+                                        )
+                                    })}
+                                  </ul>
+                                </div>}
+                            </div>}
                     </div>
                 </div>
             </div>
