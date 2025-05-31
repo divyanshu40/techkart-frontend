@@ -14,7 +14,7 @@ const routerInstance = createBrowserRouter([
         element: <App/>
     },
     {
-        path: "/productDetails/:id",
+        path: "/productDetails/:category/:id",
         element: <DisplayProductDetails/>
     }, 
     {
