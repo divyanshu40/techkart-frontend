@@ -83,22 +83,27 @@ const DisplayProducts = () => {
             setLaptopFilters((prevFilter) => ({
                 ...prevFilter, [event.target.name]: [...prevFilter[event.target.name], event.target.value]
             }));
+            setProducts(null);
             setLaptopFilterValues((prevArray) => [...prevArray, event.target.value]);
             setLaptopEnableFilterCriteria(Date.now());
         } else {
             setLaptopFilters((prevFilter) => ({
                 ...prevFilter, [event.target.name]: prevFilter[event.target.name].filter((ele) => ele !== event.target.value)
             }));
+            setProducts(null);
             setLaptopFilterValues((prevArray) => prevArray.filter((value) => value !== event.target.value));
             setLaptopEnableFilterCriteria(Date.now());
         }
     }
+
+    
 
     useEffect(() => {
         if (category === "mobiles" && filterValues.length === 0) {
             if (brand === "all") {
                 setLoading(true);
                 setError(null);
+                setProducts(null);
                 fetch("https://tech-mart-backend-five.vercel.app/mobiles")
                 .then((response) => {
                     if (! response.ok) {
@@ -134,8 +139,9 @@ const DisplayProducts = () => {
                     setLoading(false)
                 })
             }
-        } else if (category === "laptops" && filterValues.length === 0) {
+        } else if (category === "laptops" && laptopFilterValues.length === 0) {
             if (brand === "all") {
+                setProducts(null);
                 setLoading(true);
                 setError(null);
                 fetch("https://tech-mart-backend-five.vercel.app/laptops")
@@ -175,7 +181,7 @@ const DisplayProducts = () => {
                 })
             }
         }
-    }, [category, brand, enableFilterCriteria])
+    }, [category, brand, enableFilterCriteria, laptopFilterEnableCriteria])
     
     useEffect(() => {
         if (category === "mobiles" && filterValues.length > 0) {
@@ -195,8 +201,24 @@ const DisplayProducts = () => {
             .finally(() => {
                 setLoading(false);
             })
+        } else if (category === "laptops" && laptopFilterValues.length > 0) {
+            setLoading(true);
+            setError(null);
+            axios.get("https://tech-mart-backend-five.vercel.app/laptops/filter", {
+                params: laptopFilters,
+                paramsSerializer: (params => qs.stringify(params, { arrayFormat: "repeat" }))
+            })
+            .then((res) => {
+                setProducts(res.data)
+            })
+            .catch((error) => {
+                setError(error.message);
+            })
+            .finally(() => {
+                setLoading(false);
+            })
         }
-    }, [enableFilterCriteria, filter])
+    }, [enableFilterCriteria, filter, laptopFilterEnableCriteria, laptopFilters])
 
 
     return (
@@ -208,6 +230,7 @@ const DisplayProducts = () => {
                         { category === "mobiles" && <div className="card">
                             <div className="card-body overflow-y-scroll" style={{ maxHeight: '600px' }}>
                                 <p className="fs-2 fw-medium">Filters</p>
+                                <Link className="fs-5 fw-normal" onClick={() => window.location.reload()}></Link>
                                 <hr/>
                                 <label className="fs-4 fw-normal">Price</label>
                                 <div className="form-check">
@@ -1280,6 +1303,7 @@ const DisplayProducts = () => {
                         {category === "laptops" && <div className="card">
                               <div className="card-body overflow-y-scroll" style={{ maxHeight: "600px"}}>
                                 <p className="fs-2 fw-medium">Filters</p>
+                                <Link className="fs-5 fw-normal" onClick={() => window.location.reload()}>Clear</Link>
                                 <hr/>
                                 <label className="fs-3 fw-normal">Price</label>
                                 <div className="form-check">
@@ -1755,6 +1779,669 @@ const DisplayProducts = () => {
                                     <label htmlFor="amd" className="form-check-label fs-5 fw-normal">AMD</label>
                                 </div>
                                 <hr/>
+                                <label className="form-label fs-3 fw-normal">Ram Capacity</label>
+                                <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="4gb"
+                                    name="ramCapacity"
+                                    value={4}
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="4gb" className="form-check-label fs-5 fw-normal">4 GB</label>
+                                </div>
+                                <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="8gb"
+                                    name="ramCapacity"
+                                    value={8}
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="8gb" className="form-check-label fs-5 fw-normal">8 GB</label>
+                                </div>
+                                <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="16gb"
+                                    name="ramCapacity"
+                                    value={16}
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="16gb" className="form-check-label fs-5 fw-normal">16 GB</label>
+                                </div>
+                                <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="32gb"
+                                    name="ramCapacity"
+                                    value={32}
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="32gb" className="form-check-label fs-5 fw-normal">32 GB</label>
+                                </div>
+                                <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="64gb"
+                                    name="ramCapacity"
+                                    value={64}
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="64gb" className="form-check-label fs-5 fw-normal">64 GB</label>
+                                </div>
+                                <hr/>
+                                <label className="form-label fs-3 fw-normal">RAM Type</label>
+                                <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="ddr4"
+                                    name="ramType"
+                                    value="DDR4"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="ddr4" className="form-check-label fs-5 fw-normal">DDR4</label>
+                                </div>
+                                <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="lpddr4"
+                                    name="ramType"
+                                    value="LPDDR4"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="lpddr4" className="form-check-label fs-5 fw-normal">LPDDR4</label>
+                                </div>
+                                <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="ddr3"
+                                    name="ramType"
+                                    value="DDR3"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="ddr3" className="form-check-label fs-5 fw-normal">DDR3</label>
+                                </div>
+                                <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="lpddr5x"
+                                    name="ramType"
+                                    value="LPDDR5X"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="lpddr5x" className="form-check-label fs-5 fw-normal">LPDDR5X</label>
+                                </div>
+                                <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="lpddr4x"
+                                    name="ramType"
+                                    value="LPDDR4X"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="lpddr4x" className="form-check-label fs-5 fw-normal">LPDDR4X</label>
+                                </div>
+                                <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="ddr5"
+                                    name="ramType"
+                                    value="DDR5"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="ddr5" className="form-check-label fs-5 fw-normal">DDR5</label>
+                                </div>
+                                <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="lpddr5"
+                                    name="ramType"
+                                    value="LPDDR5"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="lpddr5" className="form-check-label fs-5 fw-normal">LPDDR5</label>
+                                </div>
+                                <hr/>
+                                <label className="form-label fs-3 fw-normal">Storage Capacity</label>
+                                <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="512gb"
+                                    name="storageCapacity"
+                                    value={512}
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="512gb" className="form-check-label fs-5 fw-normal">512 GB</label>
+                                </div>
+                                 <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="1tb"
+                                    name="storageCapacity"
+                                    value={1000}
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="1tb" className="form-check-label fs-5 fw-normal">1 TB</label>
+                                </div>
+                                 <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="2 tb"
+                                    name="storageCapacity"
+                                    value={2000}
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="2tb" className="form-check-label fs-5 fw-normal">2000 GB</label>
+                                </div>
+                                <hr/>
+                                <label className="form-label fs-3 fw-normal">Storage Type</label>
+                                <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="ssd"
+                                    name="storageType"
+                                    value="SSD"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="ssd" className="form-check-label fs-5 fw-normal">SSD</label>
+                                </div>
+                                <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="hdd"
+                                    name="storageType"
+                                    value="HDD"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="hdd" className="form-check-label fs-5 fw-normal">HDD</label>
+                                </div>
+                                <hr/>
+                                <label className="fs-3 fw-normal">Screen Size</label>
+                                <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="13inch-13.9inch"
+                                    name="screenSize"
+                                    value="13-13.9"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="13inch-13.9inch" className="form-label fs-5 fw-normal">13inch-13.9inch</label>
+                                </div>
+                                <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="14inch-14.9inch"
+                                    name="screenSize"
+                                    value="14-14.9"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="14inch-14.9inch" className="form-label fs-5 fw-normal">14inch-14.9inch</label>
+                                </div>
+                                <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="15inch-15.9inch"
+                                    name="screenSize"
+                                    value="15-15.9"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="15inch-15.9inch" className="form-label fs-5 fw-normal">15inch-15.9inch</label>
+                                </div>
+                                <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="16inch-20inch"
+                                    name="screenSize"
+                                    value="16-20"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="16inch-20inch" className="form-label fs-5 fw-normal">16inch and above</label>
+                                </div>
+                                <hr/>
+                                <label className="form-label fs-3 fw-normal">Operating System</label>
+                                <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="windows 10"
+                                    name="operatingSystem"
+                                    value="Windows 10"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="windows 10" className="form-check-label fs-5 fw-normal">Windows 10</label>
+                                </div>
+                                 <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="windows 11"
+                                    name="operatingSystem"
+                                    value="Windows 11"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="windows 11" className="form-check-label fs-5 fw-normal">Windows 11</label>
+                                </div>
+                                 <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="windows 11 home"
+                                    name="operatingSystem"
+                                    value="Windows 11 Home"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="windows 11 home" className="form-check-label fs-5 fw-normal">Windows 11 Home</label>
+                                </div>
+                                 <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="macos"
+                                    name="operatingSystem"
+                                    value="Mac OS"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="macos" className="form-check-label fs-5 fw-normal">Mac OS</label>
+                                </div>
+                                <hr/>
+                                <label className="form-label fs-5 fw-normal">Weight</label>
+                                <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="1.2kg-1.5kg"
+                                    name="weight"
+                                    value="1.2-1.5"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="1.2kg-1.5kg" className="form-check-label fs-5 fw-normal">1.2KG-1.5KG</label>
+                                </div>
+                                 <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="1.6kg-1.8kg"
+                                    name="weight"
+                                    value="1.6-1.8"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="1.6kg-1.8kg" className="form-check-label fs-5 fw-normal">1.6KG-1.8KG</label>
+                                </div>
+                                 <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="1.9kg-2.1kg"
+                                    name="weight"
+                                    value="1.9-2.1"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="1.9kg-2.1kg" className="form-check-label fs-5 fw-normal">1.9KG-2.1KG</label>
+                                </div>
+                                 <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="2.2kg-2.6kg"
+                                    name="weight"
+                                    value="2.2-2.6"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="2.2kg-2.6kg" className="form-check-label fs-5 fw-normal">2.2KG-2.6KG</label>
+                                </div>
+                                 <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="2.6kg-5kg"
+                                    name="weight"
+                                    value="2.6-5"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="2.6kg-5kg" className="form-check-label fs-5 fw-normal">2.6KG and above</label>
+                                </div>
+                                <hr/>
+                                <label className="form-label fs-3 fw-normal">Touch Screen</label>
+                                <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="yes"
+                                    name="isTouchScreen"
+                                    value={true}
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="yes" className="form-check-label fs-5 fw-normal">Yes</label>
+                                </div>
+                                <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="no"
+                                    name="isTouchScreen"
+                                    value={false}
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="no" className="form-check-label fs-5 fw-normal">No</label>
+                                </div>
+                                <hr/>
+                                <label className="form-label fs-3 fw-normal">Usage</label>
+                                <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="gaming"
+                                    name="usage"
+                                    value="Gaming"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="gaming" className="form-check-label fs-5 fw-normal">Gaming</label>
+                                </div>
+                                <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="business"
+                                    name="usage"
+                                    value="Business"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="business" className="form-check-label fs-5 fw-normal">Business</label>
+                                </div>
+                                <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="student"
+                                    name="usage"
+                                    value="Student"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="student" className="form-check-label fs-5 fw-normal">Student</label>
+                                </div>
+                                <hr/>
+                                <label className="form-label fs-3 fw-normal">Graphics Memory Capacity</label>
+                                <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="4-gb"
+                                    name="graphicsMemoryCapacity"
+                                    value={4}
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="4-gb" className="form-check-label fs-5 fw-normal">4 GB</label>
+                                </div>
+                                 <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="6-gb"
+                                    name="graphicsMemoryCapacity"
+                                    value={6}
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="6-gb" className="form-check-label fs-5 fw-normal">6 GB</label>
+                                </div>
+                                 <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="8-gb"
+                                    name="graphicsMemoryCapacity"
+                                    value={8}
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="8-gb" className="form-check-label fs-5 fw-normal">8 GB</label>
+                                </div>
+                                 <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="12-gb"
+                                    name="graphicsMemoryCapacity"
+                                    value={12}
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="12-gb" className="form-check-label fs-5 fw-normal">12 GB</label>
+                                </div>
+                                 <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="16-gb"
+                                    name="graphicsMemoryCapacity"
+                                    value={16}
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="16-gb" className="form-check-label fs-5 fw-normal">16 GB</label>
+                                </div>
+                                <hr/>
+                                <label className="form-label fs-3 fw-normal">Graphics Memory Type</label>
+                                <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="lpddr5"
+                                    name="graphicsMemoryType"
+                                    value="LPDDR5"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="lpddr5" className="form-check-label fs-5 fw-normal">LPDDR5</label>
+                                </div>
+                                 <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="ddr5"
+                                    name="graphicsMemoryType"
+                                    value="DDR5"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="ddr5" className="form-check-label fs-5 fw-normal">DDR5</label>
+                                </div>
+                                 <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="ddr4"
+                                    name="graphicsMemoryType"
+                                    value="DDR4"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="ddr4" className="form-check-label fs-5 fw-normal">DDR4</label>
+                                </div>
+                                 <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="gddr5"
+                                    name="graphicsMemoryType"
+                                    value="GDDR5"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="gddr5" className="form-check-label fs-5 fw-normal">GDDR5</label>
+                                </div>
+                                 <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="gddr6"
+                                    name="graphicsMemoryType"
+                                    value="GDDR6"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="gddr6" className="form-check-label fs-5 fw-normal">GDDR6</label>
+                                </div>
+                                <hr/>
+                                <label className="form-label fs-3 fw-normal">Graphics Processor Name</label>
+                                <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="intel integrated"
+                                    name="graphicsProcessorName"
+                                    value="Intel Integrated"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="intel integrated" className="form-check-label fs-5 fw-normal">Intel Integrated</label>
+                                </div>
+                                 <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="amd radeon"
+                                    name="graphicsProcessorName"
+                                    value="amd radeon"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="amd radeon" className="form-check-label fs-5 fw-normal">AMD Radeon</label>
+                                </div>
+                                 <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="nvidia geforce rtx"
+                                    name="graphicsProcessorName"
+                                    value="NVIDIA GeForce RTX"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="nvidia geforce rtx" className="form-check-label fs-5 fw-normal">NVIDIA GeForce RTX</label>
+                                </div>
+                                 <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="amd radeon rdna 3"
+                                    name="graphicsProcessorName"
+                                    value="AMD Radeon RDNA 3"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="amd radeon rdna 3" className="form-check-label fs-5 fw-normal">AMD Radeon RDNA 3</label>
+                                </div>
+                                 <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="nvidia quadro"
+                                    name="graphicsProcessorName"
+                                    value="NVIDIA Quadro"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="nividia quadro" className="form-check-label fs-5 fw-normal">NVIDIA Quadro</label>
+                                </div>
+                                 <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="qualcomm adreno"
+                                    name="graphicsProcessorName"
+                                    value="Qualcomm Adreno"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="qualcomm adreno" className="form-check-label fs-5 fw-normal">Qualcomm Adreno</label>
+                                </div>
+                                 <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="mediatek integrated"
+                                    name="graphicsProcessorName"
+                                    value="MediaTek Integrated"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="mediatek integrated" className="form-check-label fs-5 fw-normal">MediaTek Integrated</label>
+                                </div>
+                                <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="qualcomm"
+                                    name="graphicsProcessorName"
+                                    value="Qualcomm"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="qualcomm" className="form-check-label fs-5 fw-normal">Qualcomm</label>
+                                </div>
+                                <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="nvidia geforce"
+                                    name="graphicsProcessorName"
+                                    value="NVIDIA GeForce"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="nvidia geforce" className="form-check-label fs-5 fw-normal">NVIDIA GeForce</label>
+                                </div>
+                                <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="nvidia geforce gtx"
+                                    name="graphicsProcessorName"
+                                    value="NVIDIA GeForce GTX"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="nvidia geforce gtx" className="form-check-label fs-5 fw-normal">NVIDIA Geforce GTX</label>
+                                </div>
+                                <hr/>
+                                <label className="form-label fs-3 fw-normal">Features</label>
+                                <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="backlit-keyboard"
+                                    name="features"
+                                    value="Backlit Keyboard"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="backlit-keyboard" className="form-check-label fs-5 fw-normal">Backlit Keyboard</label>
+                                </div>
+                                 <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="full-hd-display"
+                                    name="features"
+                                    value="Full HD Display"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="full-hd-display" className="form-check-label fs-5 fw-normal">Full HD Display</label>
+                                </div>
+                                 <div className="form-check">
+                                    <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="ms-office"
+                                    name="features"
+                                    value="MS Office"
+                                    onChange={laptopsFilterHandler}
+                                    />
+                                    <label htmlFor="ms-office" className="form-check-label fs-5 fw-normal">MS Office</label>
+                                </div>
                               </div>
                             </div>}
                     </div>
@@ -1769,7 +2456,7 @@ const DisplayProducts = () => {
                                     {products.mobiles.map((ele) => {
                                         return (
                                             <li className="list-group-item" key={ele._id}>
-                                                <Link className="link-offset-2 link-underline link-underline-opacity-0">
+                                                <Link className="link-offset-2 link-underline link-underline-opacity-0" to={`/productDetails/mobiles/${ele._id}`}>
                                                    <div className="row">
                                                     <div className="col-md-2">
                                                         <img src={ele.thumbnailImage} className="img-fluid mt-4" style={{ height: "200px", width: "200px"}}/>
@@ -1803,6 +2490,46 @@ const DisplayProducts = () => {
                                     })}
                                   </ul>
                                 </div>}
+                                {Object.keys(products).includes("laptops") && <div>
+                                      <ul className="list-group py-4">
+                                        {products.laptops.map((ele) => {
+                                            return (
+                                                <li className="list-group-item" key={ele._id}>
+                                                    <Link className="link-offset-2 link-underline link-underline-opacity-0" to={`/productDetails/laptops/${ele._id}`}>
+                                                       <div className="row">
+                                                        <div className="col-md-2">
+                                                            <img src={ele.thumbnailImage} className="img-fluid mt-4" style={{ width: "200px", height: "200px"}}/>
+                                                        </div>
+                                                        <div className="col-md-6 py-4">
+                                                            <div className="ms-5">
+                                                                <p className="fs-3 fw-medium text-black ms-2">{ele.generalFeatures.name}</p>
+                                                                <div className="d-flex">
+                                                                    <span className="badge text-bg-success m-2">{ele.averageRating}<i className="bi bi-star-fill"></i></span>
+                                                                    <p className="fs-5 fw-normal ms-2" style={{ color: "grey"}}>{ele.ratings} Ratings & {ele.reviews} Reviews</p>
+                                                                </div>
+                                                                <ul>
+                                                                    {ele.highlights.map((element) => {
+                                                                        return (
+                                                                            <li className="fw-normal text-secondary">{element.highlightName}</li>
+                                                                        ) 
+                                                                    })}
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                        <div className="col">
+                                                            <p className="fs-3 fw-normal text-black mt-4"><i className="bi bi-currency-rupee"></i>{ele.discountedPrice}</p>
+                                                            <div className="d-flex">
+                                                                <p className="fs-5 fw-normal" style={{ color: "grey" }}><del><i className="bi bi-currency-rupee"></i>{ele.orignalPrice}</del></p>
+                                                                <p className="fs-5 fw-normal text-success ms-3">{ele.discount}% off</p>
+                                                            </div>
+                                                        </div>
+                                                       </div>
+                                                    </Link>
+                                                </li>
+                                            )
+                                        })}
+                                      </ul>
+                                    </div>}
                             </div>}
                     </div>
                 </div>
