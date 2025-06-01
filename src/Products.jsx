@@ -5,7 +5,7 @@ import axios from "axios";
 import qs from "qs"
 import Header from "./components/Header";
 
-const DisplayProducts = () => {
+const Products = () => {
 
     const { category } = useParams();
     const { brand } = useParams();
@@ -223,7 +223,6 @@ const DisplayProducts = () => {
 
     return (
         <div>
-            <Header/>
             <div className="ms-4 mt-4">
                 <div className="row">
                     <div className="col-md-3">
@@ -2534,6 +2533,33 @@ const DisplayProducts = () => {
                     </div>
                 </div>
             </div>
+        </div>
+    )
+}
+
+const DisplayProducts = () => {
+    const [cart, setCart] = useState(null);
+    const [wishlist, setWishlist] = useState(null);
+
+    useEffect(() => {
+        fetch("https://tech-mart-backend-five.vercel.app/cart")
+        .then((response) => {
+            if (! response.ok) {
+                throw new Error("Failed to fetch data");
+            }
+            return response.json();
+        })
+        .then((responseData) => {
+            setCart(responseData);
+        })
+        .catch((error) => {
+            console.error('Error', error);
+        })
+    })
+    return (
+        <div>
+            <Header sharedCart={cart} sharedWishlist={wishlist}/>
+            <Products/>
         </div>
     )
 }

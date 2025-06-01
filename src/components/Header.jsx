@@ -1,7 +1,7 @@
 import { NavLink, Link } from "react-router-dom";
 import { useState } from "react";
 
-const Header = () => {
+const Header = ({ sharedCart, sharedWishlist}) => {
     const [viewMobileBrands, setViewMobileBrands] = useState(false);
     const [viewLaptopBrands, setViewLaptopBrands] = useState(false);
   return (
@@ -21,9 +21,11 @@ const Header = () => {
               </button>
             </div>
           </div>
-          <div className="col-md-4 position-absolute top-50 start-100 translate-middle mt-4">
+          <div className="col-md-4 position-absolute top-50 start-100 translate-middle mt-5">
             <NavLink>
-              <i className="bi bi-cart fs-1 fw-normal text-light me-5"></i>
+              <i className="bi bi-cart p-2 fs-1 fw-normal text-light me-5 position-relative">
+                {sharedCart?.cartItems?.length > 0 && <span className="badge rounded-pill text-bg-light position-absolute top-0 start-100 translate-middle">{sharedCart.cartItems.length}</span>}
+              </i>
             </NavLink>
             <NavLink>
               <i className="bi bi-heart fs-1 fw-normal text-light ms-5"></i>

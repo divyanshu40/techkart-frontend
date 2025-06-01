@@ -3,7 +3,7 @@ import Header from "./components/Header";
 import { useParams } from "react-router-dom";
 import { Link } from "react-router-dom";
 
-const DisplayProductDetails = () => {
+const ProductDetails = ({ sharedCart, setSharedCart, sharedWishlist, setSharedWishlist}) => {
 
     const { category, id } = useParams();
     const [loading, setLoading] = useState(true);
@@ -12,6 +12,25 @@ const DisplayProductDetails = () => {
     const [imageUrl, setImageUrl] = useState("");
     const [noCostEmiBank, setNoCostEmiBank] = useState("");
     const [standardEmiBank, setStandardEmiBank] = useState("");
+    const [displayNoCostEmiBanks, setDisplayNoCostEmiBanks] = useState(false);
+    const [displayStandardEmiBanks, setDisplayStandardEmiBanks] = useState(false);
+    const [laptopImageUrl, setLaptopImageUrl] = useState("");
+
+    const addCartHandler = async () => {
+        let addedCartItem = await fetch("https://tech-mart-backend-five.vercel.app/cart/new", {
+            method: "POST",
+            body: JSON.stringify({product: product }),
+            headers: {
+                "content-type": "application/json"
+            }
+        });
+        let response = await fetch("https://tech-mart-backend-five.vercel.app/cart");
+        if (!response.ok) {
+            throw new Error("failed to fetch data from the cart");
+        }
+        let responseData = await response.json();
+        setSharedCart(responseData)
+    }
 
     useEffect(() => {
         if (category === "mobiles") {
@@ -31,6 +50,24 @@ const DisplayProductDetails = () => {
             .finally(() => {
                 setLoading (false);
             })
+        } else if (category === "laptops") {
+            setLoading(true);
+            fetch(`https://tech-mart-backend-five.vercel.app/laptops/details/${id}`)
+            .then((response) => {
+                if (! response.ok) {
+                    throw new Error("Failed to fetch data")
+                }
+                return response.json();
+            })
+            .then((responseData) => {
+                setProduct(responseData);
+            })
+            .catch((error) => {
+                setError(error.message)
+            })
+            .finally(() => {
+                setLoading(false)
+            })
         }
         
     }, []);
@@ -39,7 +76,6 @@ const DisplayProductDetails = () => {
 
     return (
         <div>
-            <Header/>
             <div className="row mt-2">
                 <div className="col position-relative">
                     {loading && <div className="spinner-border text-primary position-absolute top-50 start-50 translate-middle"></div>}
@@ -360,8 +396,318 @@ const DisplayProductDetails = () => {
                             </div>
                          </div>
                         </div>}
+                        {(category === "laptops" && product) && <div className="row">
+                               <div className="col-md-5 mt-2 ms-2">
+                                   <div className="card">
+                                       <div className="card-body">
+                                            <div className="row">
+                                                <div className="col-md-5">
+                                                    <ul className="list-group overflow-y-scroll" style={{ maxHeight: "500px"}}>
+                                                        {product.laptop.productImages.map((image) => {
+                                                            return (
+                                                                <li className="list-group-item" style={{ cursor: "pointer"}} onMouseEnter={() => setLaptopImageUrl(image.imageUrl)} onMouseLeave={() => setLaptopImageUrl("")} key={image._id}>
+                                                                    {image.imageUrl === laptopImageUrl ? <img src={image.imageUrl} className="img-fluid" style={{ width: "300px", height: "200px"}}/> : <img src={image.imageUrl} className="img-fluid" style={{ width: "100px", height: "100px"}}/>}
+                                                                </li>
+                                                            )
+                                                        })}
+                                                    </ul>
+                                                </div>
+                                                <div className="col position-relative">
+                                                    {laptopImageUrl ? <img src={laptopImageUrl} className="img-fluid position-absolute top-50 start-50 translate-middle" style={{ width: "300px", height: "300px"}}/> : <img src={product.laptop.thumbnailImage} className="img-fluid position-absolute top-50 start-50 translate-middle" style={{ width: "350px", height: "300px"}}/>}
+                                                </div>
+                                            </div>
+                                       </div>
+                                   </div>
+                                   <div className="d-flex ms-5 mt-4">
+                                    <button className="btn btn-warning px-5 py-4 fs-5 fw-medium" onClick={addCartHandler}>Add To Cart</button>
+                                    <button className="btn btn-success ms-5 px-5 py-4 fs-5 fw-medium">Buy Now</button>
+                                   </div>
+                                </div>
+                                <div className="col ms-5 me-2 overflow-y-scroll" style={{ maxHeight: "700px"}}>
+                                    <p className="fs-2 fw-medium">{product.laptop.generalFeatures.name} {product.laptop.generalFeatures.processor.processorBrand} {product.laptop.generalFeatures.processor.processorType} {product.laptop.generalFeatures.processor.processorGeneration} {product.laptop.processorAndMemoryFeatures.attributes.find((obj) => Object.keys(obj).includes("Processor Variant"))["Processor Variant"]} ({product.laptop.generalFeatures.ram.ramCapacity} GB / {product.laptop.generalFeatures.storage.storageCapacity} GB {product.laptop.generalFeatures.storage.storageType} / {product.laptop.generalFeatures.operatingSystem} / {product.laptop.generalFeatures.graphicsMemory.capacity} GB Graphics / {product.laptop.generalFeatures.graphicsProcessorName})</p>
+                                    <div className="d-flex align-items-center">
+                                        <div><span className="badge text-bg-success p-2">{product.laptop.averageRating}<i className="bi bi-star-fill"></i></span></div>
+                                        <p className="fs-4 fw-medium ms-4" style={ { color: "grey"}}>{product.laptop.ratings} ratings & {product.laptop.reviews} reviews</p>
+                                    </div>
+                                    <div className="d-flex align-items-center mt-4">
+                                        <p className="fs-2 fw-medium"><i className="bi bi-currency-rupee"></i>{product.laptop.discountedPrice}</p>
+                                        <p className="fs-3 fw-medium ms-4" style={{ color: "grey"}}><del><i className="bi bi-currency-rupee"></i>{product.laptop.orignalPrice}</del></p>
+                                        <p className="fs-4 fw-medium ms-4" style={{ color: "green"}}>{product.laptop.discount}% Off</p>
+                                    </div>
+                                    <div className="mt-4">
+                                        <p className="fs-3 fw-medium">Available Offers</p>
+                                        <div>
+                                            {product.laptop.offers.bankOffers.map((obj) => {
+                                                return <p className="fs-4 fw-medium"><strong>Bank Offer </strong>{obj.summary}</p>
+                                            })}
+                                        </div>
+                                    </div>
+                                    <div className="dropdown">
+                                        <button className="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">All EMI Options</button>
+                                        <ul className="dropdown-menu">
+                                            <li><Link className="dropdown-item" onClick={() => {
+                                                setDisplayNoCostEmiBanks(true);
+                                                setDisplayStandardEmiBanks(false);
+                                                setStandardEmiBank("");
+                                            }}>No-Cost EMIs</Link></li>
+                                            <li><Link className="dropdown-item" onClick={() => {
+                                                setDisplayStandardEmiBanks(true);
+                                                setDisplayNoCostEmiBanks(false);
+                                                setNoCostEmiBank("");
+                                            }}>Standard EMIs</Link></li>
+                                        </ul>
+                                    </div>
+                                    <div className="col-md-3">
+                                        {displayNoCostEmiBanks && <select className="form-select" onChange={(event) => {
+                                            setNoCostEmiBank(event.target.value);
+                                            setDisplayNoCostEmiBanks(false);
+                                            setStandardEmiBank("");
+                                        }}>
+                                            <option value="">---Select Bank---</option>
+                                            {product.laptop.offers.noCostEmiOffers.map((obj) => {
+                                                return (
+                                                    <option value={obj.bankName} key={obj._id}>{obj.bankName}</option>
+                                                )
+                                            })}
+                                        </select>}
+                                        {displayStandardEmiBanks && <select className="form-select" onChange={(event) => {
+                                            setStandardEmiBank(event.target.value);
+                                            setDisplayStandardEmiBanks(false);
+                                            setNoCostEmiBank("");
+                                        }}>
+                                                <option value="">---Select Bank---</option>
+                                                {product.laptop.standardEmis.map((obj) => {
+                                                    return <option value={obj.bankName} key={obj._id}>{obj.bankName}</option>
+                                                })}
+                                            </select>}
+                                    </div>
+                                    <div className="col-md-6 mt-2">
+                                        {noCostEmiBank && <div className="card">
+                                                <div className="card-body position-relative">
+                                                    <button className="btn btn-close position-absolute top-0 end-0" onClick={() => setNoCostEmiBank("")}></button>
+                                                    <div className="row">
+                                                        <div className="col">
+                                                            <p>EMI Plans</p>
+                                                        </div>
+                                                        <div className="col">
+                                                            <p>Total Cost</p>
+                                                        </div>
+                                                    </div>
+                                                    {product.laptop.offers.noCostEmiOffers.find((ele) => ele.bankName === noCostEmiBank).months.map((ele) => {
+                                                        return (
+                                                            <div className="row" key={ele}>
+                                                                <div className="col">
+                                                                    <p>{ele} x <i className="bi bi-currency-rupee"></i>{parseInt(product.laptop.discountedPrice / ele)}</p>
+                                                                </div>
+                                                                <div className="col">
+                                                                    <p><i className="bi bi-currency-rupee"></i>{product.laptop.discountedPrice}</p>
+                                                                </div>
+                                                            </div>
+                                                        )
+                                                    })}
+                                                </div>
+                                            </div>}
+                                            {standardEmiBank && <div className="card">
+                                                   <div className="card-body position-relative">
+                                                    <button className="btn btn-close position-absolute top-0 end-0" onClick={() => setStandardEmiBank("")}></button>
+                                                    <div className="row">
+                                                        <div className="col">
+                                                            <p>EMI Plans</p>
+                                                        </div>
+                                                        <div className="col">
+                                                            <p>Interest</p>
+                                                        </div>
+                                                        <div className="col">
+                                                            <p>Total Cost</p>
+                                                        </div>
+                                                    </div>
+                                                    {product.laptop.standardEmis.find((obj) => obj.bankName === standardEmiBank).totalEmis.map((ele) => {
+                                                        return (
+                                                            <div className="row" key={ele}>
+                                                                <div className="col">
+                                                                    <p>{ele} x <i className="bi bi-currency-rupee"></i>{parseInt( (product.laptop.discountedPrice * (0.16/12) * ( 1+ (0.16/12))**ele) / ( ((1 + (0.16/12))**ele) - 1 ) )}</p>
+                                                                </div>
+                                                                <div className="col">
+                                                                    <p>{product.laptop.standardEmis.find((obj) => obj.bankName === standardEmiBank).interestRate}%</p>
+                                                                </div>
+                                                                <div className="col">
+                                                                    <p><i className="bi bi-currency-rupee"></i>{parseInt( (product.laptop.discountedPrice * (0.16/12) * ( 1+ (0.16/12))**ele) / ( ((1 + (0.16/12))**ele) - 1 ) ) * ele}</p>
+                                                                </div>
+                                                            </div>
+                                                        )
+                                                    })}
+                                                   </div>
+                                                </div>}
+                                    </div>
+                                    <div className="py-4">
+                                        <p className="fs-2 fw-medium">Specifications</p>
+                                        <ul className="list-group">
+                                            <li className="list-group-item">
+                                                <p className="fs-3 fw-medium">General</p>
+                                                {product.laptop.generalFeatures.otherGeneralFeatures.attributes.map((obj) => {
+                                                    let keys = Object.keys(obj);
+                                                    let featureName = keys.find(ele => ele !== "id");
+                                                    return (
+                                                        <div className="row" key={obj.id}>
+                                                            <div className="col">
+                                                                <p className="fs-5 fw-medium">{featureName}</p>
+                                                            </div>
+                                                            <div className="col">
+                                                                <p className="fs-5 fw-medium" style={{ color: "grey"}}>{obj[featureName]}</p>
+                                                            </div>
+                                                        </div>
+                                                    )
+                                                })}
+                                            </li>
+                                            {(product.laptop.processorAndMemoryFeatures.attributes.length > 0) && <li className="list-group-item">
+                                                   <p className="fs-3 fw-medium">Processor & Memory Features</p>
+                                                   {product.laptop.processorAndMemoryFeatures.attributes.map((obj) => {
+                                                    let keys = Object.keys(obj);
+                                                    let featureName = keys.find(ele => ele !== "id");
+                                                    return (
+                                                        <div className="row" key={obj.id}>
+                                                            <div className="col">
+                                                                <p className="fs-5 fw-medium">{featureName}</p>
+                                                            </div>
+                                                            <div className="col">
+                                                                <p className="fs-5 fw-medium" style={{ color: "grey"}}>{obj[featureName]}</p>
+                                                            </div>
+                                                        </div>
+                                                    )
+                                                   })}
+                                                </li>}
+                                                {(product.laptop.operatingSystem.attributes.length > 0) && <li className="list-group-item">
+                                                     <p className="fs-3 fw-medium">Operating System</p>
+                                                     {product.laptop.operatingSystem.attributes.map((obj) => {
+                                                        let keys = Object.keys(obj);
+                                                        let featureName = keys.find(ele => ele !== "id");
+                                                        return (
+                                                            <div className="row" key={obj.id}>
+                                                                <div className="col">
+                                                                    <p className="fs-5 fw-medium">{featureName}</p>
+                                                                </div>
+                                                                <div className="col">
+                                                                    <p className="fs-5 fw-medium" style={{ color: "grey"}}>{obj[featureName]}</p>
+                                                                </div>
+                                                            </div>
+                                                        )
+                                                     })}
+                                                    </li>}
+                                                {(product.laptop.portAndSlotFeatures.attributes.length > 0) && <li className="list-group-item">
+                                                      <p className="fs-3 fw-medium">Port & Slot Features</p>
+                                                      {product.laptop.portAndSlotFeatures.attributes.map((obj) => {
+                                                        let keys = Object.keys(obj);
+                                                        let featureName = keys.find(ele => ele !== "id");
+                                                        return (
+                                                            <div className="row" key={obj.id}>
+                                                                <div className="col">
+                                                                    <p className="fs-5 fw-medium">{featureName}</p>
+                                                                </div>
+                                                                <div className="col">
+                                                                    <p className="fs-5 fw-medium" style={{ color: "grey"}}>{obj[featureName]}</p>
+                                                                </div>
+                                                            </div>
+                                                        )
+                                                      })}
+                                                    </li>}
+                                                {(product.laptop.displayAndAudioFeatures.attributes.length > 0) && <li className="list-group-item">
+                                                      <p className="fs-3 fw-medium">Display & Audio Features</p>
+                                                      {product.laptop.displayAndAudioFeatures.attributes.map((obj) => {
+                                                        let keys = Object.keys(obj);
+                                                        let featureName = keys.find(ele => ele !== "id");
+                                                        return (
+                                                            <div className="row" key={obj.id}>
+                                                                <div className="col">
+                                                                    <p className="fs-5 fw-medium">{featureName}</p>
+                                                                </div>
+                                                                <div className="col">
+                                                                    <p className="fs-5 fw-medium" style={{ color: "grey"}}>{obj[featureName]}</p>
+                                                                </div>
+                                                            </div>
+                                                        )
+                                                      })}
+                                                    </li>}
+                                                {(product.laptop.connectivityFeatures.attributes.length > 0) && <li className="list-group-item">
+                                                       <p className="fs-3 fw-medium">Connectivity Features</p>
+                                                       {product.laptop.connectivityFeatures.attributes.map((obj) => {
+                                                        let keys = Object.keys(obj);
+                                                        let featureName = keys.find(ele => ele !== "id");
+                                                        return (
+                                                            <div className="row" key={obj.id}>
+                                                                <div className="col">
+                                                                    <p className="fs-5 fw-medium">{featureName}</p>
+                                                                </div>
+                                                                <div className="col">
+                                                                    <p className="fs-5 fw-medium" style={{ color: "grey"}}>{obj[featureName]}</p>
+                                                                </div>
+                                                            </div>
+                                                        )
+                                                       })}
+                                                    </li>}
+                                                {(product.laptop.additionalFeatures.attributes.length > 0) && <li className="list-group-item">
+                                                       <p className="fs-3 fw-medium">Additional Features</p>
+                                                       {product.laptop.additionalFeatures.attributes.map((obj) => {
+                                                        let keys = Object.keys(obj);
+                                                        let featureName = keys.find(ele => ele !== "id");
+                                                        return (
+                                                            <div className="row" key={obj.id}>
+                                                                <div className="col">
+                                                                    <p className="fs-5 fw-medium">{featureName}</p>
+                                                                </div>
+                                                                <div className="col">
+                                                                    <p className="fs-5 fw-medium" style={{ color: "grey"}}>{obj[featureName]}</p>
+                                                                </div>
+                                                            </div>
+                                                        )
+                                                       })}
+                                                    </li>}
+                                                <li className="list-group-item">
+                                                      <p className="fs-3 fw-medium">Warranty</p>
+                                                      {Object.keys(product.laptop.warranty).map((ele) => {
+                                                        return (
+                                                            <div className="row" key={ele}>
+                                                                <div className="col">
+                                                                    <p className="fs-5 fw-medium">{ele}</p>
+                                                                </div>
+                                                                <div className="col">
+                                                                    <p className="fs-5 fw-medium" style={{ color: "grey"}}>{product.laptop.warranty[ele]} {ele === "domesticWarranty" && "Year"}</p>
+                                                                </div>
+                                                            </div>
+                                                        )
+                                                      })}
+                                                    </li>    
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>}
                 </div>
             </div>
+        </div>
+    )
+}
+
+const DisplayProductDetails = () => {
+    const [cart, setCart] = useState(null);
+    const [wishlist, setWishlist] = useState(null);
+    useEffect(() => {
+        fetch("https://tech-mart-backend-five.vercel.app/cart")
+        .then((response) => {
+            if (! response.ok) {
+                throw new Error("failed to fetch cart items");
+            }
+            return response.json();
+        })
+        .then((responseData) => {
+            setCart(responseData);
+        })
+        .catch((error) => {
+            console.error('Error: ', error);
+        })
+    }, [])
+    return (
+        <div>
+            <Header sharedCart={cart} sharedWishlist={wishlist}/>
+            <ProductDetails sharedCart={cart} setSharedCart={setCart} sharedWishlist={wishlist} setSharedWishlist={setWishlist}/>
         </div>
     )
 }
