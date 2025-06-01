@@ -1,12 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Header from "./components/Header"
 
-const App = () => {
+const HomePage = () => {
    
     return (
         <div>
-            <Header/>
             <div className="container py-4">
                 <div id="carouselExampleAutoplaying" className="carousel slide" data-bs-ride="carousel">
                     <div className="carousel-inner">
@@ -123,6 +122,33 @@ const App = () => {
                     </div>
                 </div>
             </div>
+        </div>
+    )
+}
+
+const App = () => {
+    const [cart, setCart] = useState(null);
+    const [wishlist, setWishlist] = useState(null);
+
+    useEffect(() => {
+        fetch("https://tech-mart-backend-five.vercel.app/cart")
+        .then((response) => {
+            if (! response.ok) {
+                throw new Error("failed to fetch cart items");
+            }
+            return response.json();
+        })
+        .then((responseData) => {
+            setCart(responseData);
+        })
+        .catch((error) => {
+            console.error('Error', error);
+        })
+    })
+    return (
+        <div>
+            <Header sharedCart={cart} sharedWishlist={wishlist}/>
+            <HomePage/>
         </div>
     )
 }
