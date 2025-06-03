@@ -76,7 +76,7 @@ const Cart = ({sharedCart, setSharedCart, sharedLoading, setSharedLoading, share
     }
     
     return (
-        <div className="row bg-light">
+        <div className="row bg-light container">
             <div className="col-md-8 ms-5 mt-5 position-relative">
                 <p className="fs-1 fw-medium">Cart Items</p>
                 {sharedLoading && <div className="spinner-border text-primary position-absolute top-50 start-100 translate-middle"></div>}
