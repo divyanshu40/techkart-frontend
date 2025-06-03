@@ -7,6 +7,7 @@ import "bootstrap/dist/js/bootstrap.bundle.min";
 import App from "./App";
 import DisplayProductDetails from "./ProductDetails";
 import DisplayProducts from "./Products";
+import DisplayCartItems from "./Cart";
 
 const routerInstance = createBrowserRouter([
     {
@@ -20,6 +21,10 @@ const routerInstance = createBrowserRouter([
     {
         path: "/products/:category/:brand",
         element: <DisplayProducts/>
+    },
+    {
+        path: "/cart",
+        element: <DisplayCartItems/>
     }
 ]);
 

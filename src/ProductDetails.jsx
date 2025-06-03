@@ -32,6 +32,22 @@ const ProductDetails = ({ sharedCart, setSharedCart, sharedWishlist, setSharedWi
         setSharedCart(responseData)
     }
 
+    const wishlistHandler = async () => {
+        let addedWishhlistItem = await fetch("https://tech-mart-backend-five.vercel.app/wishlist/new", {
+            method: "POST",
+            body: JSON.stringify({ product: product }),
+            headers: {
+                "content-type": "application/json"
+            }
+        });
+        let response = await fetch("https://tech-mart-backend-five.vercel.app/wishlist");
+        if (! response.ok) {
+            throw new Error("failed to fetch wishlist items");
+        }
+        let responseData = await response.json();
+        setSharedWishlist(responseData);
+    }
+
     useEffect(() => {
         if (category === "mobiles") {
             fetch(`https://tech-mart-backend-five.vercel.app/mobiles/details/${id}`)
@@ -83,7 +99,8 @@ const ProductDetails = ({ sharedCart, setSharedCart, sharedWishlist, setSharedWi
                     {(product && category === "mobiles") && <div className="row">
                          <div className="col-md-5 ms-3">
                             <div className="card">
-                                <div className="card-body">
+                                <div className="card-body position-relative">
+                                    {sharedWishlist?.wishlistItems?.find((obj) => obj?.product?.mobile?._id === product?.mobile?._id) ? <button style={{ cursor: "pointer"}} onClick={wishlistHandler}><i className="bi bi-heart-fill position-absolute top-0 end-0 p-2" style={{fontSize: "30px", color: "red"}}></i></button> : <button style={{ cursor: "pointer"}} onClick={wishlistHandler}><i className="bi bi-heart position-absolute top-0 end-0 p-2" style={{fontSize: "30px", cursor: "pointer"}}></i></button>}
                                     <div className="row">
                                         <div className="col-md-5">
                                             <div className="overflow-y-scroll">
@@ -104,7 +121,7 @@ const ProductDetails = ({ sharedCart, setSharedCart, sharedWishlist, setSharedWi
                                     </div>
                                 </div>
                             </div>
-                            <button className="btn btn-warning py-2 px-5 mt-3 ms-5">Add to Cart</button>
+                            {sharedCart?.cartItems?.find((obj) => obj?.product?.mobile?._id === product?.mobile?._id) ? <button className="btn btn-warning py-2 px-5 mt-3 ms-5"><Link className="link-offset-2 link-underline link-underline-opacity-0" to="/cart">Go To Cart</Link></button> : <button className="btn btn-warning py-2 px-5 mt-3 ms-5" onClick={addCartHandler}>Add to Cart</button>}
                             <button className="btn btn-success py-2 px-5 mt-3 ms-5">Buy Now</button>
                          </div>
                          <div className="col ms-5">
@@ -399,7 +416,8 @@ const ProductDetails = ({ sharedCart, setSharedCart, sharedWishlist, setSharedWi
                         {(category === "laptops" && product) && <div className="row">
                                <div className="col-md-5 mt-2 ms-2">
                                    <div className="card">
-                                       <div className="card-body">
+                                       <div className="card-body position-relative">
+                                        {(sharedWishlist?.wishlistItems?.find((obj) => obj?.product?.laptop?._id === product?.laptop?._id)) ? <button style={{ cursor: "pointer"}} onClick={wishlistHandler}><i className="bi bi-heart-fill position-absolute top-0 end-0 p-2" style={{fontSize: "30px", color: "red"}}></i></button> : <button style={{ cursor: "pointer"}} onClick={wishlistHandler}><i className="bi bi-heart position-absolute top-0 end-0 p-2" style={{fontSize: "30px", cursor: "pointer"}}></i></button>}
                                             <div className="row">
                                                 <div className="col-md-5">
                                                     <ul className="list-group overflow-y-scroll" style={{ maxHeight: "500px"}}>
@@ -419,7 +437,7 @@ const ProductDetails = ({ sharedCart, setSharedCart, sharedWishlist, setSharedWi
                                        </div>
                                    </div>
                                    <div className="d-flex ms-5 mt-4">
-                                    <button className="btn btn-warning px-5 py-4 fs-5 fw-medium" onClick={addCartHandler}>Add To Cart</button>
+                                    {sharedCart?.cartItems.find((obj) => obj?.product?.laptop?._id === product?.laptop?._id) ? <button className="btn btn-warning px-5 py-4 fs-5 fw-medium"><Link className="link-offset-2 link-underline link-underline-opacity-0" to="/cart">Go To Cart</Link></button> : <button className="btn btn-warning px-5 py-4 fs-5 fw-medium" onClick={addCartHandler}>Add To Cart</button>}
                                     <button className="btn btn-success ms-5 px-5 py-4 fs-5 fw-medium">Buy Now</button>
                                    </div>
                                 </div>
@@ -702,6 +720,22 @@ const DisplayProductDetails = () => {
         })
         .catch((error) => {
             console.error('Error: ', error);
+        })
+    }, [])
+
+    useEffect(() => {
+        fetch("https://tech-mart-backend-five.vercel.app/wishlist")
+        .then((response) => {
+            if (! response.ok) {
+                throw new Error("falied to fetch items from wishlist");
+            }
+            return response.json()
+        })
+        .then((responseData) => {
+            setWishlist(responseData)
+        })
+        .catch((error) => {
+            console.error('Error', error)
         })
     }, [])
     return (

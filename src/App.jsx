@@ -144,7 +144,23 @@ const App = () => {
         .catch((error) => {
             console.error('Error', error);
         })
-    })
+    }, []);
+
+    useEffect(() => {
+        fetch("https://tech-mart-backend-five.vercel.app/wishlist")
+        .then((response) => {
+            if (!response.ok) {
+                throw new Error("failed to fetch data");
+            }
+            return response.json()
+        })
+        .then((responseData) => {
+            setWishlist(responseData);
+        })
+        .catch((error) => {
+            console.error('Error', error)
+        })
+    }, []);
     return (
         <div>
             <Header sharedCart={cart} sharedWishlist={wishlist}/>
