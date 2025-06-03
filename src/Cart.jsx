@@ -76,8 +76,8 @@ const Cart = ({sharedCart, setSharedCart, sharedLoading, setSharedLoading, share
     }
     
     return (
-        <div className="row bg-light container">
-            <div className="col-md-8 ms-5 mt-5 position-relative">
+        <div className="row bg-light">
+            <div className="col-md-7 ms-5 mt-5 position-relative">
                 <p className="fs-1 fw-medium">Cart Items</p>
                 {sharedLoading && <div className="spinner-border text-primary position-absolute top-50 start-100 translate-middle"></div>}
                 {sharedError && <p className="fs-5 fw-medium">{sharedError}</p>}
@@ -88,7 +88,7 @@ const Cart = ({sharedCart, setSharedCart, sharedLoading, setSharedLoading, share
                         return (
                             <li className="list-group-item" key={obj._id}>
                                 <div className="row d-flex align-items-center">
-                                    <div className="col-md-5">
+                                    <div className="col-md-4">
                                         <input
                                         type="checkbox"
                                         className="form-check-input"
@@ -105,8 +105,8 @@ const Cart = ({sharedCart, setSharedCart, sharedLoading, setSharedLoading, share
                                         {Object.keys(obj.product).includes("mobile") && <Link to={`/productDetails/mobiles/${obj.product.mobile._id}`}><img src={obj.product.mobile.thumbnailImage} className="img-fluid" style={{ width: "200px", height: "200px"}}/></Link>}
                                     </div>
                                     <div className="col">
-                                        {Object.keys(obj.product).includes("laptop") && <p className="fs-2 fw-medium">{obj.product.laptop.generalFeatures.name}</p>}
-                                        {Object.keys(obj.product).includes("mobile") && <p className="fs-2 fw-medium">{obj.product.mobile.generalFeatures.name}</p>}
+                                        {Object.keys(obj.product).includes("laptop") && <p className="fs-4 fw-medium">{obj.product.laptop.generalFeatures.name}</p>}
+                                        {Object.keys(obj.product).includes("mobile") && <p className="fs-4 fw-medium">{obj.product.mobile.generalFeatures.name}</p>}
                                         <div className="d-flex">
                                             {Object.keys(obj.product).includes("laptop") && <p className="fs-4 fw-medium" style={{ color: "grey"}}><del><i className="bi bi-currency-rupee"></i>{obj.product.laptop.orignalPrice}</del></p>}
                                             {Object.keys(obj.product).includes("mobile") && <p className="fs-4 fw-medium" style={{ color: "grey"}}><del><i className="bi bi-currency-rupee"></i>{obj.product.mobile.orignalPrice}</del></p>}
@@ -115,7 +115,7 @@ const Cart = ({sharedCart, setSharedCart, sharedLoading, setSharedLoading, share
                                             {Object.keys(obj.product).includes("laptop") && <p className="fs-4 fw-medium ms-5" style={{ color: "green"}}>{obj.product.laptop.discount}% Off</p>}
                                             {Object.keys(obj.product).includes("mobile") && <p className="fs-4 fw-medium ms-5" style={{ color: "green"}}>{obj.product.mobile.discount}% Off</p>}
                                         </div>
-                                        <div className="col-md-3">
+                                        <div className="col-md-5">
                                            <div className="input-group">
                                            {obj.quantity=== 1 ? <button className="btn btn-danger" disabled>-</button> :  <button className="btn btn-danger" onClick={() => {
                                                 itemCountDecrementHandler(obj._id)
@@ -127,7 +127,7 @@ const Cart = ({sharedCart, setSharedCart, sharedLoading, setSharedLoading, share
                                            </div>
                                         </div>
                                     </div>
-                                    <div className="col-md-1">
+                                    <div className="col ms-5">
                                         <button className="btn btn-danger" onClick={() => {
                                             deleteCartItemHandler(obj._id)
                                         }}>Delete</button>
@@ -139,7 +139,7 @@ const Cart = ({sharedCart, setSharedCart, sharedLoading, setSharedLoading, share
                 </ul>
             </div>
             <div className="col position-relative">
-                <div className="card position-absolute top-50 start-50 translate-middle" style={{ width: "500px"}}>
+                <div className="card position-absolute top-50 start-50 translate-middle" style={{ width: "450px"}}>
                     <div className="card-body p-5">
                         <p className="fs-3 fw-medium">Cart Subtotal ({selectedCartItems.length} items): <i className="bi bi-currency-rupee"></i>{selectedCartItems.reduce((acc, curr) =>{
                             let total = 0;
@@ -151,7 +151,7 @@ const Cart = ({sharedCart, setSharedCart, sharedLoading, setSharedLoading, share
                                 return total;
                             }
                         }, 0)}</p>
-                        <button className="btn btn-success rounded-pill text-center" style={{ width: "300px"}}>Place Order</button>
+                        <button className="btn btn-success rounded-pill text-center" style={{ width: "350px"}}>Place Order</button>
                     </div>
                 </div>
             </div>
