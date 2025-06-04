@@ -110,8 +110,8 @@ const Cart = ({sharedCart, setSharedCart, sharedLoading, setSharedLoading, share
                                         <div className="d-flex">
                                             {Object.keys(obj.product).includes("laptop") && <p className="fs-4 fw-medium" style={{ color: "grey"}}><del><i className="bi bi-currency-rupee"></i>{obj.product.laptop.orignalPrice}</del></p>}
                                             {Object.keys(obj.product).includes("mobile") && <p className="fs-4 fw-medium" style={{ color: "grey"}}><del><i className="bi bi-currency-rupee"></i>{obj.product.mobile.orignalPrice}</del></p>}
-                                            {Object.keys(obj.product).includes("laptop") && <p className="fs-3 fw-medium ms-4"><i className="bi bi-currency-rupee"></i>{obj.product.laptop.discountedPrice}</p>}
-                                            {Object.keys(obj.product).includes("mobile") && <p className="fs-3 fw-medium ms-4"><i className="bi bi-currency-rupee"></i>{obj.product.mobile.discountedPrice}</p>}
+                                            {Object.keys(obj.product).includes("laptop") && <p className="fs-3 fw-medium ms-4"><i className="bi bi-currency-rupee"></i>{obj.product.laptop.discountedPrice * obj.quantity}</p>}
+                                            {Object.keys(obj.product).includes("mobile") && <p className="fs-3 fw-medium ms-4"><i className="bi bi-currency-rupee"></i>{obj.product.mobile.discountedPrice * obj.quantity}</p>}
                                             {Object.keys(obj.product).includes("laptop") && <p className="fs-4 fw-medium ms-5" style={{ color: "green"}}>{obj.product.laptop.discount}% Off</p>}
                                             {Object.keys(obj.product).includes("mobile") && <p className="fs-4 fw-medium ms-5" style={{ color: "green"}}>{obj.product.mobile.discount}% Off</p>}
                                         </div>
