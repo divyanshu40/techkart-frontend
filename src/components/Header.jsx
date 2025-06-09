@@ -21,16 +21,19 @@ const Header = ({ sharedCart, sharedWishlist}) => {
               </button>
             </div>
           </div>
-          <div className="col-md-4 position-absolute top-50 start-100 translate-middle mt-5">
+          <div className="col-md-6 position-absolute top-50 start-100 translate-middle mt-5">
             <NavLink to="/cart">
               <i className="bi bi-cart p-2 fs-1 fw-normal text-light me-5 position-relative">
                 {sharedCart?.cartItems?.length > 0 && <span className="badge rounded-pill text-bg-light position-absolute top-0 start-100 translate-middle" style={{ fontSize: "20px"}}>{sharedCart.cartItems.length}</span>}
               </i>
             </NavLink>
-            <NavLink>
-              <i className="bi bi-heart fs-1 fw-normal text-light ms-5 position-relative">
+            <NavLink to="/wishlist">
+              <i className="bi bi-heart fs-1 fw-normal text-light ms-4 position-relative">
                 {sharedWishlist?.wishlistItems?.length > 0 && <span className="badge rounded-pill text-bg-light position-absolute top-0 start-100 translate-middle" style={{ fontSize: "20px"}}>{sharedWishlist.wishlistItems.length}</span>}
               </i>
+            </NavLink>
+            <NavLink to="/user">
+              <i className="bi bi-person-circle p-2 fs-1 fw-normal text-light ms-5"></i>
             </NavLink>
           </div>
         </div>

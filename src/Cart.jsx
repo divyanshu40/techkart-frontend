@@ -2,9 +2,10 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Header from "./components/Header";
 
-const Cart = ({sharedCart, setSharedCart, sharedLoading, setSharedLoading, sharedError, setSharedError}) => {
+const Cart = ({sharedCart, setSharedCart, sharedLoading, setSharedLoading, sharedError, setSharedError, sharedWishlist, setSharedWishlist}) => {
 
     const [selectedCartItems, setSelectedCartItems] = useState([]);
+    const [selectedItemIds, setSelectedItemIds] = useState([]);
 
     const itemCountIncrementHandler = async (itemId) => {
         setSharedLoading(true)
@@ -68,10 +69,62 @@ const Cart = ({sharedCart, setSharedCart, sharedLoading, setSharedLoading, share
             if (! response.ok) {
                 throw new Error("failed to fetch cart details");
             }
+            alert("Item deleted from cart");
             let responseData = await response.json();
             setSharedCart(responseData);
         } catch(error) {
             console.error('Error: ', error);
+        }
+    }
+
+    const addToWishlistHandler = async (productData) => {
+        setSharedLoading(true);
+        try {
+            let itemAddingResponse = await fetch("https://tech-mart-backend-five.vercel.app/wishlist/new", {
+                method: "POST",
+                body: JSON.stringify({ product: productData }),
+                headers: {
+                    "content-type": "application/json"
+                }
+            });
+            if (! itemAddingResponse.ok) {
+                throw new Error("failed to add item to wishlist");
+            }
+            alert("Item added to wishlist");
+            let response = await fetch("https://tech-mart-backend-five.vercel.app/wishlist");
+            if (! response.ok) {
+                throw new Error("failed to fetch wishlist details")
+            }
+            let responseData = await response.json();
+            setSharedWishlist(responseData);
+            setSharedLoading(false)
+        }catch(error) {
+            setSharedError(error.message)
+        }
+    }
+
+    const deleteWishlistItemHandler = async (wishlistItemId) => {
+        setSharedLoading(true);
+        try {
+            let deletingResponse = await fetch(`https://tech-mart-backend-five.vercel.app/wishlist/delete/${wishlistItemId}`, {
+                method: "DELETE",
+                headers: {
+                    "content-type": "application/json"
+                }
+            });
+            if (! deletingResponse) {
+                throw new Error("failed to delete item from wishlist");
+            }
+            alert("Item deleted from wishlist");
+            let response = await fetch("https://tech-mart-backend-five.vercel.app/wishlist");
+            if (! response.ok) {
+                throw new Error("failed to fetch wishlist items")
+            }
+            let responseData = await response.json();
+            setSharedWishlist(responseData);
+            setSharedLoading(false);
+        } catch(error) {
+            setSharedError(error.message)
         }
     }
     
@@ -79,16 +132,31 @@ const Cart = ({sharedCart, setSharedCart, sharedLoading, setSharedLoading, share
         <div className="row bg-light">
             <div className="col-md-7 ms-5 mt-5 position-relative">
                 <p className="fs-1 fw-medium">Cart Items</p>
+                <p className="fs-5 fw-medium">Select items to place order</p>
                 {sharedLoading && <div className="spinner-border text-primary position-absolute top-50 start-100 translate-middle"></div>}
                 {sharedError && <p className="fs-5 fw-medium">{sharedError}</p>}
                 {sharedCart?.cartItems?.length === 0 && <p className="fs-2 fw-medium">No Items in the Cart</p>}
-                <ul className="list-group py-4">
+                <ul className="list-group py-2">
                     {sharedCart?.cartItems?.map((obj) => {
                         console.log(obj)
                         return (
                             <li className="list-group-item" key={obj._id}>
-                                <div className="row d-flex align-items-center">
-                                    <div className="col-md-4">
+                                <div className="row d-flex align-items-center ">
+                                    {Object.keys(obj.product).includes("mobile") && <>
+                                      {sharedWishlist?.wishlistItems?.filter((ele) => Object.keys(ele.product).includes("mobile")).find((ele) => ele.product.mobile._id === obj.product.mobile._id)? <i className="bi bi-heart-fill py-4" style={{ fontSize: "20px", cursor: "pointer", color: "red"}} onClick={() => {
+                                        deleteWishlistItemHandler(sharedWishlist?.wishlistItems?.filter((ele) => Object.keys(ele.product).includes("mobile")).find((ele) => ele.product.mobile._id === obj.product.mobile._id)["_id"])
+                                      }}></i> : <i className="bi bi-heart py-4" style={{ fontSize: "20px", cursor: "pointer"}} onClick={() => {
+                                        addToWishlistHandler(obj.product)
+                                    }}></i>}
+                                    </>}
+                                    {Object.keys(obj.product).includes("laptop") && <>
+                                      {sharedWishlist?.wishlistItems?.filter((ele) => Object.keys(ele.product).includes("laptop")).find((ele) => ele.product.laptop._id === obj.product.laptop._id)? <i className="bi bi-heart-fill py-4" style={{ fontSize: "20px", cursor: "pointer", color: "red"}} onClick={() => {
+                                        deleteWishlistItemHandler(sharedWishlist?.wishlistItems?.filter((ele) => Object.keys(ele.product).includes("laptop")).find((ele) => ele.product.laptop._id === obj.product.laptop._id)["_id"])
+                                      }}></i> : <i className="bi bi-heart py-4" style={{ fontSize: "20px", cursor: "pointer"}} onClick={() => {
+                                        addToWishlistHandler(obj.product)
+                                    }}></i>}
+                                    </>}
+                                    <div className="col-md-3">
                                         <input
                                         type="checkbox"
                                         className="form-check-input"
@@ -96,26 +164,28 @@ const Cart = ({sharedCart, setSharedCart, sharedLoading, setSharedLoading, share
                                         onChange={(event) => {
                                             if (event.target.checked) {
                                                 setSelectedCartItems((prevArray) => [...prevArray, obj]);
+                                                setSelectedItemIds((prevArray) => [...prevArray, obj._id]);
                                             } else {
-                                                setSelectedCartItems((prevArray) => prevArray.filter((ele) => ele._id !== obj._id))
+                                                setSelectedCartItems((prevArray) => prevArray.filter((ele) => ele._id !== obj._id));
+                                                setSelectedItemIds((prevArray) => prevArray.filter((ele) => ele !== obj._id));
                                             }
                                         }}
                                         />
                                         {Object.keys(obj.product).includes("laptop") && <Link to={`/productDetails/laptops/${obj.product.laptop._id}`}><img src={obj.product.laptop.thumbnailImage} className="img-fluid" style={{ width: "200px", height: "200px"}}/></Link>}
                                         {Object.keys(obj.product).includes("mobile") && <Link to={`/productDetails/mobiles/${obj.product.mobile._id}`}><img src={obj.product.mobile.thumbnailImage} className="img-fluid" style={{ width: "200px", height: "200px"}}/></Link>}
                                     </div>
-                                    <div className="col">
-                                        {Object.keys(obj.product).includes("laptop") && <p className="fs-4 fw-medium">{obj.product.laptop.generalFeatures.name}</p>}
-                                        {Object.keys(obj.product).includes("mobile") && <p className="fs-4 fw-medium">{obj.product.mobile.generalFeatures.name}</p>}
+                                    <div className="col ms-5">
+                                        {Object.keys(obj.product).includes("laptop") && <p className="fs-5 fw-medium">{obj.product.laptop.generalFeatures.name}</p>}
+                                        {Object.keys(obj.product).includes("mobile") && <p className="fs-5 fw-medium">{obj.product.mobile.generalFeatures.name}</p>}
                                         <div className="d-flex">
-                                            {Object.keys(obj.product).includes("laptop") && <p className="fs-4 fw-medium" style={{ color: "grey"}}><del><i className="bi bi-currency-rupee"></i>{obj.product.laptop.orignalPrice}</del></p>}
-                                            {Object.keys(obj.product).includes("mobile") && <p className="fs-4 fw-medium" style={{ color: "grey"}}><del><i className="bi bi-currency-rupee"></i>{obj.product.mobile.orignalPrice}</del></p>}
-                                            {Object.keys(obj.product).includes("laptop") && <p className="fs-3 fw-medium ms-4"><i className="bi bi-currency-rupee"></i>{obj.product.laptop.discountedPrice * obj.quantity}</p>}
-                                            {Object.keys(obj.product).includes("mobile") && <p className="fs-3 fw-medium ms-4"><i className="bi bi-currency-rupee"></i>{obj.product.mobile.discountedPrice * obj.quantity}</p>}
-                                            {Object.keys(obj.product).includes("laptop") && <p className="fs-4 fw-medium ms-5" style={{ color: "green"}}>{obj.product.laptop.discount}% Off</p>}
-                                            {Object.keys(obj.product).includes("mobile") && <p className="fs-4 fw-medium ms-5" style={{ color: "green"}}>{obj.product.mobile.discount}% Off</p>}
+                                            {Object.keys(obj.product).includes("laptop") && <p className="fs-5 fw-medium" style={{ color: "grey"}}><del><i className="bi bi-currency-rupee"></i>{obj.product.laptop.orignalPrice}</del></p>}
+                                            {Object.keys(obj.product).includes("mobile") && <p className="fs-5 fw-medium" style={{ color: "grey"}}><del><i className="bi bi-currency-rupee"></i>{obj.product.mobile.orignalPrice}</del></p>}
+                                            {Object.keys(obj.product).includes("laptop") && <p className="fs-5 fw-medium ms-4"><i className="bi bi-currency-rupee"></i>{obj.product.laptop.discountedPrice * obj.quantity}</p>}
+                                            {Object.keys(obj.product).includes("mobile") && <p className="fs-5 fw-medium ms-4"><i className="bi bi-currency-rupee"></i>{obj.product.mobile.discountedPrice * obj.quantity}</p>}
+                                            {Object.keys(obj.product).includes("laptop") && <p className="fs-5 fw-medium ms-5" style={{ color: "green"}}>{obj.product.laptop.discount}% Off</p>}
+                                            {Object.keys(obj.product).includes("mobile") && <p className="fs-5 fw-medium ms-5" style={{ color: "green"}}>{obj.product.mobile.discount}% Off</p>}
                                         </div>
-                                        <div className="col-md-5">
+                                        <div className="col-md-6 ms-4">
                                            <div className="input-group">
                                            {obj.quantity=== 1 ? <button className="btn btn-danger" disabled>-</button> :  <button className="btn btn-danger" onClick={() => {
                                                 itemCountDecrementHandler(obj._id)
@@ -127,7 +197,7 @@ const Cart = ({sharedCart, setSharedCart, sharedLoading, setSharedLoading, share
                                            </div>
                                         </div>
                                     </div>
-                                    <div className="col ms-5">
+                                    <div className="col ms-5 position-relative">
                                         <button className="btn btn-danger" onClick={() => {
                                             deleteCartItemHandler(obj._id)
                                         }}>Delete</button>
@@ -141,7 +211,7 @@ const Cart = ({sharedCart, setSharedCart, sharedLoading, setSharedLoading, share
             <div className="col position-relative">
                 <div className="card position-absolute top-50 start-50 translate-middle" style={{ width: "450px"}}>
                     <div className="card-body p-5">
-                        <p className="fs-3 fw-medium">Cart Subtotal ({selectedCartItems.length} items): <i className="bi bi-currency-rupee"></i>{selectedCartItems.reduce((acc, curr) =>{
+                        <p className="fs-4 fw-medium">Cart Subtotal ({selectedCartItems.length} items): <i className="bi bi-currency-rupee"></i>{selectedCartItems.reduce((acc, curr) =>{
                             let total = 0;
                             if (Object.keys(curr.product).includes("mobile")) {
                                 total = acc + (curr.product.mobile.discountedPrice * curr.quantity);
@@ -151,7 +221,10 @@ const Cart = ({sharedCart, setSharedCart, sharedLoading, setSharedLoading, share
                                 return total;
                             }
                         }, 0)}</p>
-                        <button className="btn btn-success rounded-pill text-center" style={{ width: "350px"}}>Place Order</button>
+                        {selectedCartItems.length === 0 ? <button className="btn btn-success rounded-pill text-center" disabled style={{ width: "350px"}}>Continue</button> :  <Link to="/orderDetails/cart"><button className="btn btn-success rounded-pill text-center" style={{ width: "350px"}} onClick={() => {
+                            sessionStorage.setItem("cartItemsIds", JSON.stringify(selectedItemIds));
+                            sessionStorage.setItem("checkedCartItems", JSON.stringify(selectedCartItems))
+                        }}>Continue</button></Link>}
                     </div>
                 </div>
             </div>
@@ -204,7 +277,7 @@ const DisplayCartItems = () => {
     return (
         <div>
             <Header sharedCart={cart} sharedWishlist={wishlist}/>
-            <Cart sharedCart={cart} setSharedCart={setCart} sharedLoading={loading} setSharedLoading={setLoading} sharedError={error} setSharedError={setError}/>
+            <Cart sharedCart={cart} setSharedCart={setCart} sharedLoading={loading} setSharedLoading={setLoading} sharedError={error} setSharedError={setError} sharedWishlist={wishlist} setSharedWishlist={setWishlist}/>
         </div>
     )
 }

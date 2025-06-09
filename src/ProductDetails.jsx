@@ -29,7 +29,8 @@ const ProductDetails = ({ sharedCart, setSharedCart, sharedWishlist, setSharedWi
             throw new Error("failed to fetch data from the cart");
         }
         let responseData = await response.json();
-        setSharedCart(responseData)
+        setSharedCart(responseData);
+        alert("Item added to cart");
     }
 
     const wishlistHandler = async () => {
@@ -46,6 +47,32 @@ const ProductDetails = ({ sharedCart, setSharedCart, sharedWishlist, setSharedWi
         }
         let responseData = await response.json();
         setSharedWishlist(responseData);
+        alert("item added to wishlist")
+    }
+
+    const deleteWishlistItemHandler = async (wishlistItemId) => {
+        setLoading(true);
+        try {
+            let itemDeletingResponse = await fetch(`https://tech-mart-backend-five.vercel.app/wishlist/delete/${wishlistItemId}`, {
+                method: "DELETE",
+                headers: {
+                    "content-type": "application/json"
+                }
+            });
+            if (!itemDeletingResponse.ok) {
+                throw new Error("failed to delete item");
+            }
+            alert("Item removed from wishlist")
+            let response = await fetch("https://tech-mart-backend-five.vercel.app/wishlist");
+            if (! response.ok) {
+                throw new Error("failed to fetch wishlist details");
+            }
+            let responseData = await response.json();
+            setSharedWishlist(responseData);
+            setLoading(false);
+        } catch(error) {
+            setError(error.message);
+        }
     }
 
     useEffect(() => {
@@ -100,7 +127,9 @@ const ProductDetails = ({ sharedCart, setSharedCart, sharedWishlist, setSharedWi
                          <div className="col-md-5 ms-3">
                             <div className="card">
                                 <div className="card-body position-relative">
-                                    {sharedWishlist?.wishlistItems?.find((obj) => obj?.product?.mobile?._id === product?.mobile?._id) ? <button style={{ cursor: "pointer"}} onClick={wishlistHandler}><i className="bi bi-heart-fill position-absolute top-0 end-0 p-2" style={{fontSize: "30px", color: "red"}}></i></button> : <button style={{ cursor: "pointer"}} onClick={wishlistHandler}><i className="bi bi-heart position-absolute top-0 end-0 p-2" style={{fontSize: "30px", cursor: "pointer"}}></i></button>}
+                                    {sharedWishlist?.wishlistItems?.find((obj) => obj?.product?.mobile?._id === product?.mobile?._id) ? <button style={{ cursor: "pointer"}} onClick={() => {
+                                        deleteWishlistItemHandler(sharedWishlist?.wishlistItems?.find((ob) => obj?.product?.mobile?._id === product?.mobile?._id)["_id"])
+                                    }}><i className="bi bi-heart-fill position-absolute top-0 end-0 p-2" style={{fontSize: "30px", color: "red"}}></i></button> : <button style={{ cursor: "pointer"}} onClick={wishlistHandler}><i className="bi bi-heart position-absolute top-0 end-0 p-2" style={{fontSize: "30px", cursor: "pointer"}}></i></button>}
                                     <div className="row">
                                         <div className="col-md-5">
                                             <div className="overflow-y-scroll">
@@ -122,7 +151,7 @@ const ProductDetails = ({ sharedCart, setSharedCart, sharedWishlist, setSharedWi
                                 </div>
                             </div>
                             {sharedCart?.cartItems?.find((obj) => obj?.product?.mobile?._id === product?.mobile?._id) ? <button className="btn btn-warning py-2 px-5 mt-3 ms-5"><Link className="link-offset-2 link-underline link-underline-opacity-0" to="/cart">Go To Cart</Link></button> : <button className="btn btn-warning py-2 px-5 mt-3 ms-5" onClick={addCartHandler}>Add to Cart</button>}
-                            <button className="btn btn-success py-2 px-5 mt-3 ms-5">Buy Now</button>
+                            <Link to="/orderDetails/item"><button className="btn btn-success py-2 px-5 mt-3 ms-5" onClick={() => sessionStorage.setItem("itemDetails", JSON.stringify(product))}>Buy Now</button></Link>
                          </div>
                          <div className="col ms-5">
                             <p className="fs-2 fw-medium">{product.mobile.generalFeatures.name} ({product.mobile.generalFeatures.ram} GB RAM)</p>
@@ -417,7 +446,9 @@ const ProductDetails = ({ sharedCart, setSharedCart, sharedWishlist, setSharedWi
                                <div className="col-md-5 mt-2 ms-2">
                                    <div className="card">
                                        <div className="card-body position-relative">
-                                        {(sharedWishlist?.wishlistItems?.find((obj) => obj?.product?.laptop?._id === product?.laptop?._id)) ? <button style={{ cursor: "pointer"}} onClick={wishlistHandler}><i className="bi bi-heart-fill position-absolute top-0 end-0 p-2" style={{fontSize: "30px", color: "red"}}></i></button> : <button style={{ cursor: "pointer"}} onClick={wishlistHandler}><i className="bi bi-heart position-absolute top-0 end-0 p-2" style={{fontSize: "30px", cursor: "pointer"}}></i></button>}
+                                        {(sharedWishlist?.wishlistItems?.find((obj) => obj?.product?.laptop?._id === product?.laptop?._id)) ? <button style={{ cursor: "pointer"}} onClick={() => {
+                                            deleteWishlistItemHandler(sharedWishlist?.wishlistItems?.find((obj) => obj?.product?.laptop?._id === product?.laptop?._id)["_id"])
+                                        }}><i className="bi bi-heart-fill position-absolute top-0 end-0 p-2" style={{fontSize: "30px", color: "red"}}></i></button> : <button style={{ cursor: "pointer"}} onClick={wishlistHandler}><i className="bi bi-heart position-absolute top-0 end-0 p-2" style={{fontSize: "30px", cursor: "pointer"}}></i></button>}
                                             <div className="row">
                                                 <div className="col-md-5">
                                                     <ul className="list-group overflow-y-scroll" style={{ maxHeight: "500px"}}>
@@ -438,7 +469,7 @@ const ProductDetails = ({ sharedCart, setSharedCart, sharedWishlist, setSharedWi
                                    </div>
                                    <div className="d-flex ms-5 mt-4">
                                     {sharedCart?.cartItems.find((obj) => obj?.product?.laptop?._id === product?.laptop?._id) ? <button className="btn btn-warning px-5 py-4 fs-5 fw-medium"><Link className="link-offset-2 link-underline link-underline-opacity-0" to="/cart">Go To Cart</Link></button> : <button className="btn btn-warning px-5 py-4 fs-5 fw-medium" onClick={addCartHandler}>Add To Cart</button>}
-                                    <button className="btn btn-success ms-5 px-5 py-4 fs-5 fw-medium">Buy Now</button>
+                                    <Link to="/orderDetails/item"><button className="btn btn-success ms-5 px-5 py-4 fs-5 fw-medium" onClick={() => sessionStorage.setItem("itemDetails", JSON.stringify(product))}>Buy Now</button></Link>
                                    </div>
                                 </div>
                                 <div className="col ms-5 me-2 overflow-y-scroll" style={{ maxHeight: "700px"}}>
