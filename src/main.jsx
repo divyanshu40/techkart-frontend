@@ -11,6 +11,7 @@ import DisplayCartItems from "./Cart";
 import DisplayOrderDetails from "./OrdersDetails";
 import DisplayWishlist from "./Wishlist";
 import DisplayUserDetails from "./User";
+import DisplaySearchProducts from "./DisplaySearch";
 
 const routerInstance = createBrowserRouter([
     {
@@ -40,6 +41,10 @@ const routerInstance = createBrowserRouter([
     {
         path: "/user",
         element: <DisplayUserDetails/>
+    },
+    {
+        path: "/search",
+        element: <DisplaySearchProducts/>
     }
 ]);
 

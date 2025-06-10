@@ -129,6 +129,7 @@ const HomePage = () => {
 const App = () => {
     const [cart, setCart] = useState(null);
     const [wishlist, setWishlist] = useState(null);
+    const [inputQuery, setInputQuery] = useState("");
 
     useEffect(() => {
         fetch("https://tech-mart-backend-five.vercel.app/cart")
@@ -163,7 +164,7 @@ const App = () => {
     }, []);
     return (
         <div>
-            <Header sharedCart={cart} sharedWishlist={wishlist}/>
+            <Header sharedCart={cart} sharedWishlist={wishlist} sharedInputQuery={inputQuery} setSharedInputQuery={setInputQuery}/>
             <HomePage/>
         </div>
     )

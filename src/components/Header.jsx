@@ -1,7 +1,7 @@
 import { NavLink, Link } from "react-router-dom";
 import { useState } from "react";
 
-const Header = ({ sharedCart, sharedWishlist}) => {
+const Header = ({ sharedCart, sharedWishlist,  sharedInputQuery, setSharedInputQuery, searchBtnHandler, sharedAscOrderProducts, setSharedAscOrderProducts, sharedDescOrderProducts, setSharedDescOrderProducts}) => {
     const [viewMobileBrands, setViewMobileBrands] = useState(false);
     const [viewLaptopBrands, setViewLaptopBrands] = useState(false);
   return (
@@ -15,10 +15,13 @@ const Header = ({ sharedCart, sharedWishlist}) => {
           </div>
           <div className="col-md-4">
             <div className="input-group mt-2 ms-2">
-              <input type="text" className="form-control" />
-              <button className="btn btn-light">
+              <input type="text" className="form-control" onChange={(event) => setSharedInputQuery(event.target.value)}/>
+              <Link className="btn btn-light" onClick={() => {
+                sessionStorage.setItem("inputQuery", JSON.stringify(sharedInputQuery));
+                searchBtnHandler()
+              }} to="/search">
                 <i className="bi bi-search"></i>
-              </button>
+              </Link>
             </div>
           </div>
           <div className="col-md-6 position-absolute top-50 start-100 translate-middle mt-5">
@@ -55,14 +58,38 @@ const Header = ({ sharedCart, sharedWishlist}) => {
                 </NavLink>
                 {viewMobileBrands && (
                   <ul className="dropdown-menu show">
-                    <li><Link className="dropdown-item" to="/products/mobiles/all">All Mobiles</Link></li>
-                    <li><Link className="dropdown-item" to="/products/mobiles/Apple">Apple</Link></li>
-                    <li><Link className="dropdown-item" to="/products/mobiles/Samsung">Samsung</Link></li>
-                    <li><Link className="dropdown-item" to="/products/mobiles/Google">Google</Link></li>
-                    <li><Link className="dropdown-item" to="/products/mobiles/Vivo">Vivo</Link></li>
-                    <li><Link className="dropdown-item" to="/products/mobiles/Oppo">Oppo</Link></li>
-                    <li><Link className="dropdown-item" to="/products/mobiles/Realme">Realme</Link></li>
-                    <li><Link className="dropdown-item" to="/products/mobiles/Motorola">Motorola</Link></li>
+                    <li><Link className="dropdown-item" to="/products/mobiles/all" onClick={() => {
+                      setSharedAscOrderProducts([]);
+                      setSharedDescOrderProducts([])
+                    }}>All Mobiles</Link></li>
+                    <li><Link className="dropdown-item" to="/products/mobiles/Apple" onClick={() => {
+                      setSharedAscOrderProducts([]);
+                      setSharedDescOrderProducts([]);
+                    }}>Apple</Link></li>
+                    <li><Link className="dropdown-item" to="/products/mobiles/Samsung" onClick={() => {
+                      setSharedAscOrderProducts([]);
+                      setSharedDescOrderProducts([]);
+                    }}>Samsung</Link></li>
+                    <li><Link className="dropdown-item" to="/products/mobiles/Google" onClick={() => {
+                      setSharedAscOrderProducts([]);
+                      setSharedDescOrderProducts([]);
+                    }}>Google</Link></li>
+                    <li><Link className="dropdown-item" to="/products/mobiles/Vivo" onClick={() => {
+                      setSharedAscOrderProducts([]);
+                      setSharedDescOrderProducts([]);
+                    }}>Vivo</Link></li>
+                    <li><Link className="dropdown-item" to="/products/mobiles/Oppo" onClick={() => {
+                      setSharedAscOrderProducts([]);
+                      setSharedDescOrderProducts([]);
+                    }}>Oppo</Link></li>
+                    <li><Link className="dropdown-item" to="/products/mobiles/Realme" onClick={() => {
+                      setSharedAscOrderProducts([]);
+                      setSharedDescOrderProducts([]);
+                    }}>Realme</Link></li>
+                    <li><Link className="dropdown-item" to="/products/mobiles/Motorola" onClick={() => {
+                      setSharedAscOrderProducts([]);
+                      setSharedDescOrderProducts([]);
+                    }}>Motorola</Link></li>
                   </ul>
                 )}
               </div>
@@ -83,14 +110,38 @@ const Header = ({ sharedCart, sharedWishlist}) => {
                 </NavLink>
                 {viewLaptopBrands && (
                   <ul className="dropdown-menu show">
-                    <li><Link className="dropdown-item" to="/products/laptops/all">All Laptops</Link></li>
-                    <li><Link className="dropdown-item" to="/products/laptops/Apple">Apple</Link></li>
-                    <li><Link className="dropdown-item" to="/products/laptops/HP">HP</Link></li>
-                    <li><Link className="dropdown-item" to="/products/laptops/Dell">Dell</Link></li>
-                    <li><Link className="dropdown-item" to="/products/laptops/Lenovo">Lenovo</Link></li>
-                    <li><Link className="dropdown-item" to="/products/laptops/Asus">Asus</Link></li>
-                    <li><Link className="dropdown-item" to="/products/laptops/Accer">Acer</Link></li>
-                    <li><Link className="dropdown-item" to="/products/laptops/MSI">MSI</Link></li>
+                    <li><Link className="dropdown-item" to="/products/laptops/all" onClick={() => {
+                      setSharedAscOrderProducts([]);
+                      setSharedDescOrderProducts([]);
+                    }}>All Laptops</Link></li>
+                    <li><Link className="dropdown-item" to="/products/laptops/Apple" onClick={() => {
+                      setSharedAscOrderProducts([]);
+                      setSharedDescOrderProducts([]);
+                    }}>Apple</Link></li>
+                    <li><Link className="dropdown-item" to="/products/laptops/HP" onClick={() => {
+                      setSharedAscOrderProducts([]);
+                      setSharedDescOrderProducts([]);
+                    }}>HP</Link></li>
+                    <li><Link className="dropdown-item" to="/products/laptops/Dell" onClick={() => {
+                      setSharedAscOrderProducts([]);
+                      setSharedDescOrderProducts([]);
+                    }}>Dell</Link></li>
+                    <li><Link className="dropdown-item" to="/products/laptops/Lenovo" onClick={() => {
+                      setSharedAscOrderProducts([]);
+                      setSharedDescOrderProducts([]);
+                    }}>Lenovo</Link></li>
+                    <li><Link className="dropdown-item" to="/products/laptops/Asus" onClick={() => {
+                      setSharedAscOrderProducts([]);
+                      setSharedDescOrderProducts([]);
+                    }}>Asus</Link></li>
+                    <li><Link className="dropdown-item" to="/products/laptops/Accer" onClick={() => {
+                      setSharedAscOrderProducts([]);
+                      setSharedDescOrderProducts([]);
+                    }}>Acer</Link></li>
+                    <li><Link className="dropdown-item" to="/products/laptops/MSI" onClick={() => {
+                      setSharedAscOrderProducts([]);
+                      setSharedDescOrderProducts([]);
+                    }}>MSI</Link></li>
                   </ul>
                 )}
               </div>

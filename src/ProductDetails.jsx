@@ -738,6 +738,7 @@ const ProductDetails = ({ sharedCart, setSharedCart, sharedWishlist, setSharedWi
 const DisplayProductDetails = () => {
     const [cart, setCart] = useState(null);
     const [wishlist, setWishlist] = useState(null);
+    const [inputQuery, setInputQuery] = useState("");
     useEffect(() => {
         fetch("https://tech-mart-backend-five.vercel.app/cart")
         .then((response) => {
@@ -771,7 +772,7 @@ const DisplayProductDetails = () => {
     }, [])
     return (
         <div>
-            <Header sharedCart={cart} sharedWishlist={wishlist}/>
+            <Header sharedCart={cart} sharedWishlist={wishlist} sharedInputQuery={inputQuery} setSharedInputQuery={setInputQuery}/>
             <ProductDetails sharedCart={cart} setSharedCart={setCart} sharedWishlist={wishlist} setSharedWishlist={setWishlist}/>
         </div>
     )

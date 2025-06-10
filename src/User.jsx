@@ -683,6 +683,7 @@ const DisplayUserDetails = () => {
     const [cart, setCart] = useState(null);
     const [wishlist, setWishlist] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [inputQuery, setInputQuery] = useState("");
 
     useEffect(() => {
         setLoading(true);
@@ -725,7 +726,7 @@ const DisplayUserDetails = () => {
     }, []);
     return (
         <div>
-            <Header sharedCart={cart} sharedWishlist={wishlist}/>
+            <Header sharedCart={cart} sharedWishlist={wishlist} sharedInputQuery={inputQuery} setSharedInputQuery={setInputQuery}/>
             <User sharedLoading={loading} setSharedLoading={setLoading}/>
         </div>
     )
