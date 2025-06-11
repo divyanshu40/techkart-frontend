@@ -1,1 +1,2 @@
-## PRD for e-commerce application
+## PRD Checklist for e-commerce application
+###Pages
