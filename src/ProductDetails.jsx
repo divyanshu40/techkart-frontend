@@ -128,7 +128,7 @@ const ProductDetails = ({ sharedCart, setSharedCart, sharedWishlist, setSharedWi
                             <div className="card">
                                 <div className="card-body position-relative">
                                     {sharedWishlist?.wishlistItems?.find((obj) => obj?.product?.mobile?._id === product?.mobile?._id) ? <button style={{ cursor: "pointer"}} onClick={() => {
-                                        deleteWishlistItemHandler(sharedWishlist?.wishlistItems?.find((ob) => obj?.product?.mobile?._id === product?.mobile?._id)["_id"])
+                                        deleteWishlistItemHandler(sharedWishlist?.wishlistItems?.find((obj) => obj?.product?.mobile?._id === product?.mobile?._id)["_id"])
                                     }}><i className="bi bi-heart-fill position-absolute top-0 end-0 p-2" style={{fontSize: "30px", color: "red"}}></i></button> : <button style={{ cursor: "pointer"}} onClick={wishlistHandler}><i className="bi bi-heart position-absolute top-0 end-0 p-2" style={{fontSize: "30px", cursor: "pointer"}}></i></button>}
                                     <div className="row">
                                         <div className="col-md-5">
