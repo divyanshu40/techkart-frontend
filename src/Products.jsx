@@ -2551,7 +2551,7 @@ const Products = ({ sharedAscOrderProducts, setSharedAscOrderProducts, sharedDes
                             </div>}
                     </div>
                     <div className="col position-relative">
-                        <label className="form-label fs-5 fw-medium">Sort By Price:</label>
+                       
                         
                        {loading && <div className="position-absolute top-50 start-50 translate-middle">
                           <div className="spinner-border text-primary" role="status"></div>
