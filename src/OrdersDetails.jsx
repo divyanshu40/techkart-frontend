@@ -12,6 +12,7 @@ const Order = ({ sharedCart, setSharedCart, sharedLoading, setSharedLoading, sha
     let [itemQuantity, setItemQuantity] = useState(1);
     let [orderPlaced, setOrderPlaced] = useState(false);
     let [addedOrders, setAddedOrders] = useState(null);
+    const [displayOrderPlacedMessage, setDisplayOrderPlacedMessage] = useState(false);
     if (category === "cart") {
       itemsIds = JSON.parse(sessionStorage.getItem("cartItemsIds"));
       checkedCartItems = JSON.parse(sessionStorage.getItem("checkedCartItems"));
@@ -144,8 +145,9 @@ const Order = ({ sharedCart, setSharedCart, sharedLoading, setSharedLoading, sha
          setOrderPlaced(true);
          setAddedOrders(ordersDetails);
          setSharedCart(updatedCartData);
+         setDisplayOrderPlacedMessage(true);
          setSharedLoading(false);
-         alert("Order placed successfully");
+         
          } catch(error) {}
        } else if (category === "item") {
         setSharedLoading(true);
@@ -182,6 +184,10 @@ const Order = ({ sharedCart, setSharedCart, sharedLoading, setSharedLoading, sha
         <div className="bg-light">
             <div className="container">
                 <p className="fs-3 fw-medium py-4">Order Details</p>
+                <div className="alert alert-success col-md-4 position-relative">
+                    <p className="fs-5 fw-medium">Order placed successfully</p>
+                    <button className="btn btn-close position-absolute top-0 end-0" onClick={() => setDisplayOrderPlacedMessage(false)}></button>
+                </div>
                 <div className="row pb-4">
                     <div className="col-md-7 position-relative">
                         {sharedLoading && <div className="spinner-border text-primary position-absolute top-50 start-100 translate-middle"></div>}
