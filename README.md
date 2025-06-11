@@ -27,4 +27,4 @@
  - [x] User can remove the product from the cart<br>
  - [x] User can add the product to the wishlist<br>
  - [x] User can select the cart items that he wish to buy<br>
- - [x] User can view the price card of the selected cart items<br>
+ - [x] User can view the price card of the selected cart items
