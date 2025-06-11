@@ -27,4 +27,15 @@
  - [x] User can remove the product from the cart<br>
  - [x] User can add the product to the wishlist<br>
  - [x] User can select the cart items that he wish to buy<br>
- - [x] User can view the price card of the selected cart items
+ - [x] User can view the price card of the selected cart items<br>
+ ### Wishlist Management Page: This page show the list products that user wish to buy<br>
+ **Features**<br>
+ - [x] User can remove product from the wishlist<br>
+ - [x] User can add the product to the cart<br>
+ ## Order Details Page: This page shows the final order details<br>
+ **Features**
+ - [x] User can see the final order details<br>
+ - [x] User can increase or decrease the order quantity of a product<br>
+ - [x] Final price card is displayed<br>
+ - [x] By clicking on "Place Order" button the page shows the message that order has been placed successfully<br>
+
