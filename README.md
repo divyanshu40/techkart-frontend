@@ -32,10 +32,13 @@
  **Features**<br>
  - [x] User can remove product from the wishlist<br>
  - [x] User can add the product to the cart<br>
- ## Order Details Page: This page shows the final order details<br>
+ ### Order Details Page: This page shows the final order details<br>
  **Features**
  - [x] User can see the final order details<br>
  - [x] User can increase or decrease the order quantity of a product<br>
  - [x] Final price card is displayed<br>
  - [x] By clicking on "Place Order" button the page shows the message that order has been placed successfully<br>
-
+### Address Management Page: This page is used to manage addresses<br>
+***Features**
+- [x] User can add new address<br>
+- [x] User can update and delete existing addresses<br>
