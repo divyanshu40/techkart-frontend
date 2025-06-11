@@ -42,3 +42,15 @@
 ***Features**
 - [x] User can add new address<br>
 - [x] User can update and delete existing addresses<br>
+### User Profile Page: This page shows user details<br>
+**Features**
+- [x] User can see the profile details<br>
+- [x] User can update the profile details<br>
+### Loading And Alerts<br>
+- [x] Add item to the cart<br>
+- [x] Remove Item from the cart<br>
+- [x] Increase or Decrease item in the cart<br>
+- [x] Move an item from the cart to the wishlist<br>
+- [x] Add item to the wishlist<br>
+- [x] Remove Item from the wishlist<br>
+- [x] Move an item from wishlist to cart
