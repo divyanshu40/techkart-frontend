@@ -270,7 +270,39 @@ const Products = ({ sharedAscOrderProducts, setSharedAscOrderProducts, sharedDes
                 <div className="row">
                     <div className="col-md-3">
                         { category === "mobiles" && <div className="card">
+
                             <div className="card-body overflow-y-scroll" style={{ maxHeight: '600px' }}>
+                                <label className="fs-4 fw-medium form-label">Sort By Price</label>
+                                 <div className="form-check">
+                            <input
+                            type="radio"
+                            className="form-check-input"
+                            id="low to high"
+                            name="sort"
+                            onChange={lowToHighSortHandler}
+                            />
+                            <label htmlFor="low to high" className="form-check-label fs-5 fw-normal">low to high</label>
+                        </div>
+                        <div className="form-check">
+                            <input
+                            type="radio"
+                            className="form-check-input"
+                            id="high to low"
+                            name="sort"
+                            onChange={highToLowSortHandler}
+                            />
+                            <label htmlFor="high to low" className="form-check-label fs-5 fw-normal">high to low</label>
+                        </div>
+                        <div className="form-check">
+                            <input
+                            type="radio"
+                            className="form-check-input"
+                            id="unsort"
+                            name="sort"
+                            onChange={unsortHandler}
+                            />
+                            <label htmlFor="unsort" className="form-check-label fs-5 fw-normal">unsort</label>
+                        </div>
                                 <p className="fs-2 fw-medium">Filters</p>
                                 <Link className="fs-5 fw-normal" onClick={() => window.location.reload()}></Link>
                                 <hr/>
@@ -1344,6 +1376,37 @@ const Products = ({ sharedAscOrderProducts, setSharedAscOrderProducts, sharedDes
                         </div>}
                         {category === "laptops" && <div className="card">
                               <div className="card-body overflow-y-scroll" style={{ maxHeight: "600px"}}>
+                                <label className="form-label fs-4 fw-medium">Sort By Price</label>
+                                 <div className="form-check">
+                            <input
+                            type="radio"
+                            className="form-check-input"
+                            id="low to high"
+                            name="sort"
+                            onChange={lowToHighSortHandler}
+                            />
+                            <label htmlFor="low to high" className="form-check-label fs-5 fw-normal">low to high</label>
+                        </div>
+                        <div className="form-check">
+                            <input
+                            type="radio"
+                            className="form-check-input"
+                            id="high to low"
+                            name="sort"
+                            onChange={highToLowSortHandler}
+                            />
+                            <label htmlFor="high to low" className="form-check-label fs-5 fw-normal">high to low</label>
+                        </div>
+                        <div className="form-check">
+                            <input
+                            type="radio"
+                            className="form-check-input"
+                            id="unsort"
+                            name="sort"
+                            onChange={unsortHandler}
+                            />
+                            <label htmlFor="unsort" className="form-check-label fs-5 fw-normal">unsort</label>
+                        </div>
                                 <p className="fs-2 fw-medium">Filters</p>
                                 <Link className="fs-5 fw-normal" onClick={() => window.location.reload()}>Clear</Link>
                                 <hr/>
@@ -2496,36 +2559,7 @@ const Products = ({ sharedAscOrderProducts, setSharedAscOrderProducts, sharedDes
                         {error && <p className="fs-5 fw-normal">{error}</p>}
                         {products && <div>
                               {Object.keys(products).includes("mobiles") && <div>
-                                <div className="form-check">
-                            <input
-                            type="radio"
-                            className="form-check-input"
-                            id="low to high"
-                            name="sort"
-                            onChange={lowToHighSortHandler}
-                            />
-                            <label htmlFor="low to high" className="form-check-label fs-5 fw-normal">low to high</label>
-                        </div>
-                        <div className="form-check">
-                            <input
-                            type="radio"
-                            className="form-check-input"
-                            id="high to low"
-                            name="sort"
-                            onChange={highToLowSortHandler}
-                            />
-                            <label htmlFor="high to low" className="form-check-label fs-5 fw-normal">high to low</label>
-                        </div>
-                        <div className="form-check">
-                            <input
-                            type="radio"
-                            className="form-check-input"
-                            id="unsort"
-                            name="sort"
-                            onChange={unsortHandler}
-                            />
-                            <label htmlFor="unsort" className="form-check-label fs-5 fw-normal">unsort</label>
-                        </div>
+                               
                                   {(sharedAscOrderProducts.length === 0 && sharedDescOrderProducts.length === 0) && <ul className="list-group py-4">
                                     {products.mobiles.map((ele) => {
                                         return (
@@ -2639,36 +2673,7 @@ const Products = ({ sharedAscOrderProducts, setSharedAscOrderProducts, sharedDes
                                   </ul>}
                                 </div>}
                                 {Object.keys(products).includes("laptops") && <div>
-                                    <div className="form-check">
-                            <input
-                            type="radio"
-                            className="form-check-input"
-                            id="low to high"
-                            name="sort"
-                            onChange={lowToHighSortHandler}
-                            />
-                            <label htmlFor="low to high" className="form-check-label fs-5 fw-normal">low to high</label>
-                        </div>
-                        <div className="form-check">
-                            <input
-                            type="radio"
-                            className="form-check-input"
-                            id="high to low"
-                            name="sort"
-                            onChange={highToLowSortHandler}
-                            />
-                            <label htmlFor="high to low" className="form-check-label fs-5 fw-normal">high to low</label>
-                        </div>
-                        <div className="form-check">
-                            <input
-                            type="radio"
-                            className="form-check-input"
-                            id="unsort"
-                            name="sort"
-                            onChange={unsortHandler}
-                            />
-                            <label htmlFor="unsort" className="form-check-label fs-5 fw-normal">unsort</label>
-                        </div>
+                        
                                       {(sharedAscOrderProducts.length === 0 && sharedDescOrderProducts.length === 0) && <ul className="list-group py-4">
                                         {products.laptops.map((ele) => {
                                             return (

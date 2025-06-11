@@ -6,6 +6,11 @@ const Cart = ({sharedCart, setSharedCart, sharedLoading, setSharedLoading, share
 
     const [selectedCartItems, setSelectedCartItems] = useState([]);
     const [selectedItemIds, setSelectedItemIds] = useState([]);
+    const [displayItemCountIncrementMessage, setDisplayItemCountIncrementMessage] = useState(false);
+    const [displayItemCountDecrementMessage, setDisplayItemCountDecrementMessage] = useState(false);
+    const [displayAddToWishlistMessage, setDisplayAddToWishlistMessage] = useState(false);
+    const [displayDeleteWishlistItemMessage, setDisplayDeleteWishlistItemMessage] = useState(false);
+    const [displayDeleteCartItemMessage, setDisplayDeleteCartItemMessage] = useState(false);
 
     const itemCountIncrementHandler = async (itemId) => {
         setSharedLoading(true)
@@ -26,6 +31,7 @@ const Cart = ({sharedCart, setSharedCart, sharedLoading, setSharedLoading, share
             }
             let responseData = await response.json();
             setSharedCart(responseData);
+            setDisplayItemCountIncrementMessage(true);
             setSharedLoading(false);
         } catch(error) {
             console.error('Error: ', error);
@@ -48,6 +54,7 @@ const Cart = ({sharedCart, setSharedCart, sharedLoading, setSharedLoading, share
         let response = await fetch("https://tech-mart-backend-five.vercel.app/cart");
         let responseData = await response.json();
         setSharedCart(responseData);
+        setDisplayItemCountDecrementMessage(true);
         setSharedLoading(false);
         } catch(error) {
             console.error('Error: ', error)
@@ -55,6 +62,7 @@ const Cart = ({sharedCart, setSharedCart, sharedLoading, setSharedLoading, share
     }
 
     const deleteCartItemHandler = async (itemId) => {
+        setSharedLoading(true)
         try {
             let deletedCartItem = await fetch(`https://tech-mart-backend-five.vercel.app/cart/delete/${itemId}`, {
                 method: "DELETE",
@@ -69,9 +77,10 @@ const Cart = ({sharedCart, setSharedCart, sharedLoading, setSharedLoading, share
             if (! response.ok) {
                 throw new Error("failed to fetch cart details");
             }
-            alert("Item deleted from cart");
             let responseData = await response.json();
             setSharedCart(responseData);
+            setDisplayDeleteCartItemMessage(true);
+            setSharedLoading(false)
         } catch(error) {
             console.error('Error: ', error);
         }
@@ -90,13 +99,14 @@ const Cart = ({sharedCart, setSharedCart, sharedLoading, setSharedLoading, share
             if (! itemAddingResponse.ok) {
                 throw new Error("failed to add item to wishlist");
             }
-            alert("Item added to wishlist");
+            
             let response = await fetch("https://tech-mart-backend-five.vercel.app/wishlist");
             if (! response.ok) {
                 throw new Error("failed to fetch wishlist details")
             }
             let responseData = await response.json();
             setSharedWishlist(responseData);
+            setDisplayAddToWishlistMessage(true);
             setSharedLoading(false)
         }catch(error) {
             setSharedError(error.message)
@@ -115,13 +125,13 @@ const Cart = ({sharedCart, setSharedCart, sharedLoading, setSharedLoading, share
             if (! deletingResponse) {
                 throw new Error("failed to delete item from wishlist");
             }
-            alert("Item deleted from wishlist");
             let response = await fetch("https://tech-mart-backend-five.vercel.app/wishlist");
             if (! response.ok) {
                 throw new Error("failed to fetch wishlist items")
             }
             let responseData = await response.json();
             setSharedWishlist(responseData);
+            setDisplayDeleteWishlistItemMessage(true);
             setSharedLoading(false);
         } catch(error) {
             setSharedError(error.message)
@@ -133,6 +143,26 @@ const Cart = ({sharedCart, setSharedCart, sharedLoading, setSharedLoading, share
             <div className="col-md-7 ms-5 mt-5 position-relative">
                 <p className="fs-1 fw-medium">Cart Items</p>
                 <p className="fs-5 fw-medium">Select items to place order</p>
+                {displayItemCountIncrementMessage && <div className="alert alert-success col-md-4 position-relative">
+                      <p className="fs-5 fw-medium">Cart Item Increased</p>
+                      <button className="btn btn-close position-absolute top-0 end-0" onClick={() => setDisplayItemCountIncrementMessage(false)}></button>
+                    </div>}
+                    {displayItemCountDecrementMessage && <div className="alert alert-danger col-md-4 position-relative">
+                      <p className="fs-5 fw-medium">Cart Item Decreased</p>
+                      <button className="btn btn-close position-absolute top-0 end-0" onClick={() => setDisplayItemCountDecrementMessage(false)}></button>
+                    </div>}
+                    {displayAddToWishlistMessage && <div className="alert alert-success col-md-4 position-relative">
+                      <p className="fs-5 fw-medium">Cart item added to wishlist</p>
+                      <button className="btn btn-close position-absolute top-0 end-0" onClick={() => setDisplayAddToWishlistMessage(false)}></button>
+                    </div>}
+                    {displayDeleteWishlistItemMessage && <div className="alert alert-danger col-md-4 position-relative">
+                      <p className="fs-5 fw-medium">Cart item deleted from wishlist</p>
+                      <button className="btn btn-close position-absolute top-0 end-0" onClick={() => setDisplayDeleteWishlistItemMessage(false)}></button>
+                    </div>}
+                    {displayDeleteCartItemMessage && <div className="alert alert-danger col-md-4 position-relative">
+                      <p className="fs-5 fw-medium">Item deleted from cart</p>
+                      <button className="btn btn-close position-absolute top-0 end-0" onClick={() => setDisplayDeleteCartItemMessage(false)}></button>
+                    </div>}
                 {sharedLoading && <div className="spinner-border text-primary position-absolute top-50 start-100 translate-middle"></div>}
                 {sharedError && <p className="fs-5 fw-medium">{sharedError}</p>}
                 {sharedCart?.cartItems?.length === 0 && <p className="fs-2 fw-medium">No Items in the Cart</p>}

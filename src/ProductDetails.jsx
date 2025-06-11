@@ -15,6 +15,9 @@ const ProductDetails = ({ sharedCart, setSharedCart, sharedWishlist, setSharedWi
     const [displayNoCostEmiBanks, setDisplayNoCostEmiBanks] = useState(false);
     const [displayStandardEmiBanks, setDisplayStandardEmiBanks] = useState(false);
     const [laptopImageUrl, setLaptopImageUrl] = useState("");
+    const [displayAddToCartMessage, setDisplayAddToCartMessage] = useState(false);
+    const [displayAddToWishlistMessage, setDisplayAddToWishlistMessage] = useState(false);
+    const [displayDeleteWishlistItemMessage, setDisplayDeleteWishlistItemMessage] = useState(false);
 
     const addCartHandler = async () => {
         let addedCartItem = await fetch("https://tech-mart-backend-five.vercel.app/cart/new", {
@@ -30,7 +33,7 @@ const ProductDetails = ({ sharedCart, setSharedCart, sharedWishlist, setSharedWi
         }
         let responseData = await response.json();
         setSharedCart(responseData);
-        alert("Item added to cart");
+        setDisplayAddToCartMessage(true)
     }
 
     const wishlistHandler = async () => {
@@ -47,7 +50,7 @@ const ProductDetails = ({ sharedCart, setSharedCart, sharedWishlist, setSharedWi
         }
         let responseData = await response.json();
         setSharedWishlist(responseData);
-        alert("item added to wishlist")
+        setDisplayAddToWishlistMessage(true)
     }
 
     const deleteWishlistItemHandler = async (wishlistItemId) => {
@@ -62,13 +65,14 @@ const ProductDetails = ({ sharedCart, setSharedCart, sharedWishlist, setSharedWi
             if (!itemDeletingResponse.ok) {
                 throw new Error("failed to delete item");
             }
-            alert("Item removed from wishlist")
+            
             let response = await fetch("https://tech-mart-backend-five.vercel.app/wishlist");
             if (! response.ok) {
                 throw new Error("failed to fetch wishlist details");
             }
             let responseData = await response.json();
             setSharedWishlist(responseData);
+            setDisplayDeleteWishlistItemMessage(true);
             setLoading(false);
         } catch(error) {
             setError(error.message);
@@ -152,8 +156,20 @@ const ProductDetails = ({ sharedCart, setSharedCart, sharedWishlist, setSharedWi
                             </div>
                             {sharedCart?.cartItems?.find((obj) => obj?.product?.mobile?._id === product?.mobile?._id) ? <button className="btn btn-warning py-2 px-5 mt-3 ms-5"><Link className="link-offset-2 link-underline link-underline-opacity-0" to="/cart">Go To Cart</Link></button> : <button className="btn btn-warning py-2 px-5 mt-3 ms-5" onClick={addCartHandler}>Add to Cart</button>}
                             <Link to="/orderDetails/item"><button className="btn btn-success py-2 px-5 mt-3 ms-5" onClick={() => sessionStorage.setItem("itemDetails", JSON.stringify(product))}>Buy Now</button></Link>
+                            {displayAddToCartMessage && <div className="py-4"><div className="alert alert-success col-md-4 position-relative">
+                                   <p className="fs-5 fw-medium">Item added to cart</p>
+                                   <button className="btn btn-close position-absolute top-0 end-0" onClick={() => setDisplayAddToCartMessage(false)}></button>
+                                </div></div>}
                          </div>
                          <div className="col ms-5">
+                            {displayAddToWishlistMessage && <div className="alert alert-success col-md-4 position-relative">
+                                   <p className="fs-5 fw-medium">Item added to wishlist</p>
+                                   <button className="btn btn-close position-absolute top-0 end-0" onClick={() => setDisplayAddToWishlistMessage(false)}></button>
+                                </div>}
+                                {displayDeleteWishlistItemMessage && <div className="alert alert-danger col-md-4 position-relative">
+                                   <p className="fs-5 fw-medium">Item deleted from wishlist</p>
+                                   <button className="btn btn-close position-absolute top-0 end-0" onClick={() => setDisplayDeleteWishlistItemMessage(false)}></button>
+                                </div>}
                             <p className="fs-2 fw-medium">{product.mobile.generalFeatures.name} ({product.mobile.generalFeatures.ram} GB RAM)</p>
                             <div className="d-flex">
                                 <div><span className="badge text-bg-success">{product.mobile.averageRating}<i className="bi bi-star-fill"></i></span></div>

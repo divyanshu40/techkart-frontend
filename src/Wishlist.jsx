@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import Header from "./components/Header";
 
 const WishlistDetails = ({ sharedCart, setSharedCart, sharedWishlist, setSharedWishlist, sharedLoading, setSharedLoading}) => {
+    const [displayAddToCartMessage, setDisplayaddToCartMessage] = useState(false);
+    const [displayDeleteMessage, setDisplayDeleteMessage] = useState(false);
 
     const addToCartHandler = async (wishlistItem) => {
         setSharedLoading(true);
@@ -17,13 +19,13 @@ const WishlistDetails = ({ sharedCart, setSharedCart, sharedWishlist, setSharedW
         if (! itemAddingResponse.ok) {
             throw new Error("failed to add item to the cart");
         }
-        alert("Item added to cart")
         let response = await fetch("https://tech-mart-backend-five.vercel.app/cart");
         if (! response.ok) {
             throw new Error("failed to fetch cart details");
         }
         let responseData = await response.json();
         setSharedCart(responseData);
+        setDisplayaddToCartMessage(true);
         setSharedLoading(false);
         } catch(error) {
             console.error("Error: ", error);
@@ -42,7 +44,6 @@ const WishlistDetails = ({ sharedCart, setSharedCart, sharedWishlist, setSharedW
         if (! itemDeletingResponse.ok) {
             throw new Error("failed to delete items from wishlist");
         }
-        alert("Item deleted from wishlist");
         let response = await fetch("https://tech-mart-backend-five.vercel.app/wishlist");
         if (! response.ok) {
             throw new Error("failed to fetch wishlist details");
@@ -50,6 +51,7 @@ const WishlistDetails = ({ sharedCart, setSharedCart, sharedWishlist, setSharedW
         let responseData = await response.json();
         setSharedWishlist(responseData);
         setSharedLoading(false);
+        setDisplayDeleteMessage(true);
         } catch(error) {
             console.error("Error: ", error);
         }
@@ -59,6 +61,14 @@ const WishlistDetails = ({ sharedCart, setSharedCart, sharedWishlist, setSharedW
         <div className="bg-light">
             <div className="container">
                 <p className="fs-4 fw-medium py-4">My Wishlist</p>
+                {displayDeleteMessage && <div className="alert alert-danger position-relative col-md-4" role="alert">
+                      <p className="fs-5 fw-medium">Item deleted from wishlist successfully</p>
+                      <button className="btn btn-close position-absolute top-0 end-0" onClick={() => setDisplayDeleteMessage(false)}></button>
+                    </div>}
+                    {displayAddToCartMessage && <div className="alert alert-success col-md-4 position-relative">
+                          <p className="fs-5 fw-medium">Item added to cart successfully</p>
+                          <button className="btn btn-close position-absolute top-0 end-0" onClick={() => setDisplayaddToCartMessage(false)}></button>
+                        </div>}
                 <div className="row">
                     <div className="col position-relative mt-5">
                         {sharedLoading && <div className="spinner-border text-primary position-absolute top-50 start-50 translate-middle"></div>}
