@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import Header from "./components/Header";
 
-const User = ({ sharedLoading, setSharedLoading}) => {
+const User = ({ sharedLoading, setSharedLoading, sharedDisplayPersonalInfo, setSharedDisplayPersonalInfo, sharedDisplayOrderPage, setSharedDisplayOrderPage}) => {
 
+    
     const [userDetails, setUserDetails] = useState(null);
-    const [displayPersonalinfo, setDisplayPersonalInfo] = useState(true);
     const [displayAddressPage, setDisplayAddressPage] = useState(false);
-    const [displayOrdersPage, setDisplayOrdersPage] = useState(false);
     const [edit, setEdit] = useState(false);
     const [updatedUserDetails, setUpdatedUserDetails] = useState({});
     const [displayAddressForm, setDisplayAddressForm] = useState(false);
@@ -193,30 +193,30 @@ const User = ({ sharedLoading, setSharedLoading}) => {
                         <ul className="list-group py-4">
                             <Link className="link-offset-2 link-underline link-underline-opacity-0">
                                 <li className="fs-5 fw-medium list-group-item d-flex justify-content-between" onClick={() => {
-                                    setDisplayOrdersPage(true);
+                                    setSharedDisplayOrderPage(true);
                                     setDisplayAddressPage(false);
-                                    setDisplayPersonalInfo(false);
+                                    setSharedDisplayPersonalInfo(false);
                                 }}>My Orders<i className="bi bi-arrow-right ms-5"></i></li>
                             </Link>
                             <li className="list-group-item">
                                 <p className="fs-5 fw-medium py-2">Account Settings</p>
                                 <Link className="fs-6 fw-normal link-offset-2 link-underline link-underline-opacity-0" onClick={() => {
-                                    setDisplayPersonalInfo(true);
+                                    setSharedDisplayPersonalInfo(true);
                                     setDisplayAddressPage(false);
-                                    setDisplayOrdersPage(false);
+                                    setSharedDisplayOrderPage(false);
                                 }}>Profile Information</Link>
                                 <br/>
                                 <br/>
                                 <Link className="fs-6 fw-normal link-offset-2 link-underline link-underline-opacity-0" onClick={() => {
                                     setDisplayAddressPage(true);
-                                    setDisplayPersonalInfo(false);
-                                    setDisplayOrdersPage(false);
+                                    setSharedDisplayPersonalInfo(false);
+                                    setSharedDisplayOrderPage(false);
                                 }}>Manage Addresses</Link>
                             </li>
                         </ul>
                     </div>
                     <div className="col">
-                        {(displayPersonalinfo && !edit) && <>
+                        {(sharedDisplayPersonalInfo && !edit) && <>
                           <div className="card">
                             <div className="card-body">
                                 <Link onClick={() => {
@@ -251,7 +251,7 @@ const User = ({ sharedLoading, setSharedLoading}) => {
                             </div>
                         </div>
                         </>}
-                        {(displayPersonalinfo && edit) && <>
+                        {(sharedDisplayPersonalInfo && edit) && <>
                           <div className="card">
                             <div className="card-body">
                                 <div className="col-md-4">
@@ -652,7 +652,7 @@ const User = ({ sharedLoading, setSharedLoading}) => {
                                         </div>}
                                </div>
                             </div>}
-                            {displayOrdersPage && <div>
+                            {sharedDisplayOrderPage && <div>
                                    <p className="fs-3 fw-medium">My Orders</p>
                                    {ordersDetails && <ul className="list-group py-4">
                                        {ordersDetails.orders.map((obj) => {
@@ -684,8 +684,18 @@ const DisplayUserDetails = () => {
     const [wishlist, setWishlist] = useState(null);
     const [loading, setLoading] = useState(true);
     const [inputQuery, setInputQuery] = useState("");
+    const [displayPersonalinfo, setDisplayPersonalInfo] = useState(false);
+    const [displayOrdersPage, setDisplayOrdersPage] = useState(false);
+    const { view } = useParams();
 
     useEffect(() => {
+        if (view === "default") {
+            setDisplayPersonalInfo(true);
+            setDisplayOrdersPage(false)
+        } else if (view === "orders") {
+            setDisplayOrdersPage(true);
+            setDisplayPersonalInfo(false);
+        }
         setLoading(true);
         fetch("https://tech-mart-backend-five.vercel.app/cart")
         .then((response) => {
@@ -727,7 +737,14 @@ const DisplayUserDetails = () => {
     return (
         <div>
             <Header sharedCart={cart} sharedWishlist={wishlist} sharedInputQuery={inputQuery} setSharedInputQuery={setInputQuery}/>
-            <User sharedLoading={loading} setSharedLoading={setLoading}/>
+            <User 
+            sharedLoading={loading} 
+            setSharedLoading={setLoading}
+            sharedDisplayPersonalInfo={displayPersonalinfo}
+            setSharedDisplayPersonalInfo = {setDisplayPersonalInfo}
+            sharedDisplayOrderPage={displayOrdersPage}
+            setSharedDisplayOrderPage={setDisplayOrdersPage}
+            />
         </div>
     )
 }

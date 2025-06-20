@@ -39,7 +39,7 @@ const routerInstance = createBrowserRouter([
         element: <DisplayWishlist/>
     },
     {
-        path: "/user",
+        path: "/user/:view",
         element: <DisplayUserDetails/>
     },
     {

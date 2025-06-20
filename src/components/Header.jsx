@@ -35,7 +35,7 @@ const Header = ({ sharedCart, sharedWishlist,  sharedInputQuery, setSharedInputQ
                 {sharedWishlist?.wishlistItems?.length > 0 && <span className="badge rounded-pill text-bg-light position-absolute top-0 start-100 translate-middle" style={{ fontSize: "20px"}}>{sharedWishlist.wishlistItems.length}</span>}
               </i>
             </NavLink>
-            <NavLink to="/user">
+            <NavLink to="/user/default">
               <i className="bi bi-person-circle p-2 fs-1 fw-normal text-light ms-5"></i>
             </NavLink>
           </div>
@@ -114,10 +114,6 @@ const Header = ({ sharedCart, sharedWishlist,  sharedInputQuery, setSharedInputQ
                       setSharedAscOrderProducts([]);
                       setSharedDescOrderProducts([]);
                     }}>All Laptops</Link></li>
-                    <li><Link className="dropdown-item" to="/products/laptops/Apple" onClick={() => {
-                      setSharedAscOrderProducts([]);
-                      setSharedDescOrderProducts([]);
-                    }}>Apple</Link></li>
                     <li><Link className="dropdown-item" to="/products/laptops/HP" onClick={() => {
                       setSharedAscOrderProducts([]);
                       setSharedDescOrderProducts([]);

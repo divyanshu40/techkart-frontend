@@ -33,7 +33,8 @@ const ProductDetails = ({ sharedCart, setSharedCart, sharedWishlist, setSharedWi
         }
         let responseData = await response.json();
         setSharedCart(responseData);
-        setDisplayAddToCartMessage(true)
+        setDisplayAddToCartMessage(true);
+        setTimeout(() => setDisplayAddToCartMessage(false), 5000);
     }
 
     const wishlistHandler = async () => {
@@ -50,7 +51,8 @@ const ProductDetails = ({ sharedCart, setSharedCart, sharedWishlist, setSharedWi
         }
         let responseData = await response.json();
         setSharedWishlist(responseData);
-        setDisplayAddToWishlistMessage(true)
+        setDisplayAddToWishlistMessage(true);
+        setTimeout(() => setDisplayAddToWishlistMessage(false), 5000);
     }
 
     const deleteWishlistItemHandler = async (wishlistItemId) => {
@@ -73,6 +75,7 @@ const ProductDetails = ({ sharedCart, setSharedCart, sharedWishlist, setSharedWi
             let responseData = await response.json();
             setSharedWishlist(responseData);
             setDisplayDeleteWishlistItemMessage(true);
+            setTimeout(() => setDisplayDeleteWishlistItemMessage(false), 5000)
             setLoading(false);
         } catch(error) {
             setError(error.message);
@@ -156,19 +159,16 @@ const ProductDetails = ({ sharedCart, setSharedCart, sharedWishlist, setSharedWi
                             </div>
                             {sharedCart?.cartItems?.find((obj) => obj?.product?.mobile?._id === product?.mobile?._id) ? <button className="btn btn-warning py-2 px-5 mt-3 ms-5"><Link className="link-offset-2 link-underline link-underline-opacity-0" to="/cart">Go To Cart</Link></button> : <button className="btn btn-warning py-2 px-5 mt-3 ms-5" onClick={addCartHandler}>Add to Cart</button>}
                             <Link to="/orderDetails/item"><button className="btn btn-success py-2 px-5 mt-3 ms-5" onClick={() => sessionStorage.setItem("itemDetails", JSON.stringify(product))}>Buy Now</button></Link>
-                            {displayAddToCartMessage && <div className="py-4"><div className="alert alert-success col-md-4 position-relative">
-                                   <p className="fs-5 fw-medium">Item added to cart</p>
-                                   <button className="btn btn-close position-absolute top-0 end-0" onClick={() => setDisplayAddToCartMessage(false)}></button>
+                            {displayAddToCartMessage && <div className="py-4"><div className="alert bg-success col-md-4">
+                                   <p className="fw-medium text-light">Item added to cart</p>
                                 </div></div>}
                          </div>
                          <div className="col ms-5">
-                            {displayAddToWishlistMessage && <div className="alert alert-success col-md-4 position-relative">
-                                   <p className="fs-5 fw-medium">Item added to wishlist</p>
-                                   <button className="btn btn-close position-absolute top-0 end-0" onClick={() => setDisplayAddToWishlistMessage(false)}></button>
+                            {displayAddToWishlistMessage && <div className="alert bg-success col-md-4">
+                                   <p className="fw-medium text-light">Item added to wishlist</p>
                                 </div>}
-                                {displayDeleteWishlistItemMessage && <div className="alert alert-danger col-md-4 position-relative">
-                                   <p className="fs-5 fw-medium">Item deleted from wishlist</p>
-                                   <button className="btn btn-close position-absolute top-0 end-0" onClick={() => setDisplayDeleteWishlistItemMessage(false)}></button>
+                                {displayDeleteWishlistItemMessage && <div className="alert bg-danger col-md-4">
+                                   <p className="fw-medium text-light">Item deleted from wishlist</p>
                                 </div>}
                             <p className="fs-2 fw-medium">{product.mobile.generalFeatures.name} ({product.mobile.generalFeatures.ram} GB RAM)</p>
                             <div className="d-flex">

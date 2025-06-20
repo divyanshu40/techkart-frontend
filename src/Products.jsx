@@ -304,7 +304,7 @@ const Products = ({ sharedAscOrderProducts, setSharedAscOrderProducts, sharedDes
                             <label htmlFor="unsort" className="form-check-label fs-5 fw-normal">unsort</label>
                         </div>
                                 <p className="fs-2 fw-medium">Filters</p>
-                                <Link className="fs-5 fw-normal" onClick={() => window.location.reload()}></Link>
+                                <Link className="fs-5 fw-normal" onClick={() => window.location.reload()}>Clear All</Link>
                                 <hr/>
                                 <label className="fs-4 fw-normal">Price</label>
                                 <div className="form-check">
